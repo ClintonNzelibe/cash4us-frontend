@@ -25,7 +25,7 @@ interface AuthContextValue {
   accessToken: string | null
   isLoading: boolean
   isAuthenticated: boolean
-  login: (credentials: LoginRequest) => Promise<void>
+  login: (credentials: LoginRequest) => Promise<string>
   logout: () => void
 }
 
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     restoreSession()
   }, [])
 
-  async function login(credentials: LoginRequest) {
+  async function login(credentials: LoginRequest): Promise<string> {
     const response = await loginRequest(credentials)
 
     setTokens(response.access, response.refresh)
@@ -72,6 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const currentUser = await getCurrentUser(response.access)
     setUser(currentUser)
+
+    return response.access
   }
 
   function logout() {

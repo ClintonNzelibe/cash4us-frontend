@@ -13,6 +13,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuth } from '../../context/AuthContext'
+import { getAdminDashboard } from '../../services/adminDashboardService'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -23,6 +24,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [error, setError] = useState('')
@@ -58,19 +60,25 @@ export default function LoginPage() {
     return valid
   }
 
-  function handleEmailChange(event: ChangeEvent<HTMLInputElement>) {
+  function handleEmailChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
     setEmail(event.target.value)
     setEmailError('')
     setError('')
   }
 
-  function handlePasswordChange(event: ChangeEvent<HTMLInputElement>) {
+  function handlePasswordChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
     setPassword(event.target.value)
     setPasswordError('')
     setError('')
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault()
 
     if (isSubmitting) {
@@ -86,12 +94,28 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await login({
+      const accessToken = await login({
         email: email.trim().toLowerCase(),
         password,
       })
 
-      navigate('/dashboard', { replace: true })
+      /*
+       * The backend's Admin API is protected by IsCash4UsAdmin.
+       * We use the real endpoint to determine whether this
+       * authenticated account has administrator access.
+       */
+      try {
+        await getAdminDashboard(accessToken)
+
+        navigate('/admin', { replace: true })
+        return
+      } catch {
+        /*
+         * A normal authenticated member cannot access the
+         * Admin API, so they continue to the member dashboard.
+         */
+        navigate('/dashboard', { replace: true })
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -106,7 +130,6 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="grid min-h-screen lg:grid-cols-2">
-
         {/* Brand panel */}
         <section className="relative hidden overflow-hidden bg-[#0F172A] lg:flex">
           <div className="absolute inset-0">
@@ -160,7 +183,6 @@ export default function LoginPage() {
         {/* Login */}
         <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
           <div className="w-full max-w-md">
-
             {/* Mobile logo */}
             <div className="mb-10 flex items-center justify-center gap-3 lg:hidden">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0F766E] text-white">
@@ -243,7 +265,9 @@ export default function LoginPage() {
                   }
                   disabled={isSubmitting}
                   aria-label={
-                    showPassword ? 'Hide password' : 'Show password'
+                    showPassword
+                      ? 'Hide password'
+                      : 'Show password'
                   }
                   className="absolute right-2 top-[30px] rounded-lg p-2.5 text-slate-400 hover:bg-slate-100 hover:text-[#0F766E] disabled:cursor-not-allowed"
                 >

@@ -1,10 +1,12 @@
 import {
   Bell,
+  BookOpen,
+  Building2,
   CircleDollarSign,
   ClipboardCheck,
   CreditCard,
   Gift,
-  
+  Headphones,
   Home,
   LogOut,
   Package,
@@ -53,6 +55,16 @@ const navigation = [
     icon: ClipboardCheck,
   },
   {
+  label: 'Resources',
+  path: '/resources',
+  icon: BookOpen,
+  },
+  {
+  label: 'Partners',
+  path: '/partners',
+  icon: Building2,
+},
+  {
     label: 'Withdrawals',
     path: '/withdrawals',
     icon: CircleDollarSign,
@@ -62,6 +74,11 @@ const navigation = [
     path: '/community',
     icon: Gift,
   },
+  {
+  label: 'Support',
+  path: '/support',
+  icon: Headphones,
+},
   {
     label: 'Notifications',
     path: '/notifications',

@@ -48,11 +48,11 @@ export default function AppLayout() {
         <div className="flex min-w-0 flex-1 flex-col">
 
           {/* Top bar */}
-          <header className="sticky top-0 z-30 flex h-16 items-center border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
+          <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center border-b border-[#E2E8F0] bg-white/95 px-4 backdrop-blur sm:px-6">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="mr-3 rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+              className="mr-3 rounded-lg p-2 text-[#64748B] transition hover:bg-[#F1F5F9] lg:hidden"
               aria-label="Open navigation"
             >
               <Menu className="h-5 w-5" />
@@ -64,7 +64,7 @@ export default function AppLayout() {
           </header>
 
           {/* Page content */}
-          <main className="flex-1">
+          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             <Outlet />
           </main>
 

@@ -8,7 +8,11 @@ import {
   User,
   UserPlus,
 } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom'
 
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -32,6 +36,10 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const referralFromUrl =
+    searchParams.get('ref')?.trim().toUpperCase() || ''
 
   const [form, setForm] = useState<RegisterForm>({
     first_name: '',
@@ -40,7 +48,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirm_password: '',
-    referral_code: '',
+    referral_code: referralFromUrl,
   })
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
