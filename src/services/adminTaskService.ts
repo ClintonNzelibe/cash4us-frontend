@@ -4,7 +4,7 @@ import { ADMIN_ENDPOINTS } from '../api/endpoints'
 import type {
   AdminDailyTask,
   AdminDailyTaskPayload,
-  AdminTaskActionResponse,
+  
   AdminTaskListResponse,
   AdminTaskStatusResponse,
   AdminTaskSubmission,

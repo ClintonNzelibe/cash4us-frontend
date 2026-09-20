@@ -41,7 +41,7 @@ const navigation = [
   { label: 'Resources', path: '/admin/resources', icon: FileText },
   { label: 'Partners', path: '/admin/partners', icon: Building2 },
   { label: 'Notifications', path: '/admin/notifications', icon: Bell },
-  { label: 'Audit Logs', path: '/admin/audit-logs', icon: Landmark },
+  { label: 'Audit Logs', path: '/admin/audit', icon: Landmark },
 ]
 
 export default function AdminSidebar({

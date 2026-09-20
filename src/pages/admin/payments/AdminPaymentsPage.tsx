@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Eye, Image as ImageIcon, RefreshCw } from 'lucide-react'
+import { Eye, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'

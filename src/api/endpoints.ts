@@ -81,41 +81,49 @@ export const ADMIN_ENDPOINTS = {
   processWeeklyAward:
     '/admin/rewards/awards/process-weekly/',
 
+  // Advertising
   advertisers: '/admin/advertising/advertisers/',
   advertiserDetail: (id: string) =>
     `/admin/advertising/advertisers/${id}/`,
+  advertiserCreate: '/admin/advertising/advertisers/create/',
+  advertiserUpdate: (id: string) =>
+    `/admin/advertising/advertisers/${id}/update/`,
   advertiserStatus: (id: string) =>
     `/admin/advertising/advertisers/${id}/status/`,
 
   campaigns: '/admin/advertising/campaigns/',
   campaignDetail: (id: string) =>
     `/admin/advertising/campaigns/${id}/`,
+  campaignCreate: '/admin/advertising/campaigns/create/',
+  campaignUpdate: (id: string) =>
+    `/admin/advertising/campaigns/${id}/update/`,
 
   advertisingRevenue: '/admin/advertising/revenue/',
   advertisingRevenueDetail: (id: string) =>
     `/admin/advertising/revenue/${id}/`,
+  advertisingRevenueCreate: '/admin/advertising/revenue/create/',
   advertisingRevenueConfirm: (id: string) =>
     `/admin/advertising/revenue/${id}/confirm/`,
   advertisingRevenueCancel: (id: string) =>
     `/admin/advertising/revenue/${id}/cancel/`,
 
-  communityPools: '/admin/community/pools/',
-  communityPoolDetail: (id: string) =>
-    `/admin/community/pools/${id}/`,
+  communityPools: '/admin/community/',
+  communityPoolDetail: (id: string) => `/admin/community/${id}/`,
+  communityPoolCreate: '/admin/community/create/',
   communityAllocate: (id: string) =>
-    `/admin/community/pools/${id}/allocate/`,
+    `/admin/community/${id}/allocate-revenue/`,
   communityClose: (id: string) =>
-    `/admin/community/pools/${id}/close/`,
+    `/admin/community/${id}/close/`,
   communityDistribute: (id: string) =>
-    `/admin/community/pools/${id}/distribute/`,
+    `/admin/community/${id}/distribute/`,
 
-  supportTickets: '/admin/support/tickets/',
+  supportTickets: '/admin/support/',
   supportTicketDetail: (id: string) =>
-    `/admin/support/tickets/${id}/`,
+    `/admin/support/${id}/`,
   supportReply: (id: string) =>
-    `/admin/support/tickets/${id}/reply/`,
+    `/admin/support/${id}/reply/`,
   supportClose: (id: string) =>
-    `/admin/support/tickets/${id}/close/`,
+    `/admin/support/${id}/close/`,
 
   resources: '/admin/resources/',
   resourceDetail: (id: string) =>
@@ -124,17 +132,14 @@ export const ADMIN_ENDPOINTS = {
     `/admin/resources/${id}/status/`,
 
   partners: '/admin/partners/',
-  partnerDetail: (id: string) =>
-    `/admin/partners/${id}/`,
-  partnerStatus: (id: string) =>
-    `/admin/partners/${id}/status/`,
+  partnerCreate: '/admin/partners/create/',
+  partnerDetail: (id: string) => `/admin/partners/${id}/`,
+  partnerStatus: (id: string) => `/admin/partners/${id}/status/`,
 
   auditLogs: '/admin/audit-logs/',
-  auditLogDetail: (id: string) =>
-    `/admin/audit-logs/${id}/`,
+  auditLogDetail: (id: string) => `/admin/audit-logs/${id}/`,
 
   notifications: '/admin/notifications/',
-  notificationDetail: (id: string) =>
-    `/admin/notifications/${id}/`,
-  sendNotification: '/admin/notifications/send/',
+  notificationDetail: (id: string) => `/admin/notifications/${id}/`,
+  notificationSend: '/admin/notifications/send/',
 } as const
