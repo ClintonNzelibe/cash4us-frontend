@@ -5,6 +5,7 @@ export interface User {
   first_name: string
   last_name: string
   referral_code: string
+  is_admin: boolean
   date_joined: string
 }
 

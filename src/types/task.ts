@@ -11,6 +11,7 @@ export interface DailyTask {
   title: string
   description: string
   reward: string
+  daily_earning_amount: string | number | null
   points: number
   platform: string
   required_platforms: string[]
@@ -31,6 +32,7 @@ export interface DailyTask {
 export interface TaskSubmission {
   id: string
   task: DailyTask
+  credited_amount: string | number | null
   proof_type: TaskProofType
   proof_image: string | null
   proof_url: string

@@ -10,11 +10,9 @@ import { getAdminCommunityPools } from '../../../services/adminCommunityService'
 
 import type {
   AdminCommunityPool,
-  
 } from '../../../types/admin/community'
 
 import CommunityPoolStatusBadge from './components/CommunityPoolStatusBadge'
-import CommunityPoolFilters from './components/CommunityPoolFilters'
 
 export default function AdminCommunityPoolsPage() {
   const { accessToken } = useAuth()

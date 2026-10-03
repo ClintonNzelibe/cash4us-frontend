@@ -1,35 +1,14 @@
-import { apiClient } from '../api/client'
+import { API_BASE_URL, apiClient } from '../api/client'
 import type {
   Payment,
+  PaymentCreated,
   PaymentSubmitRequest,
 } from '../types/payment'
-
-const API_BASE_URL = 'http://127.0.0.1:8000/api'
 
 export async function submitPayment(
   data: PaymentSubmitRequest,
   token: string,
-): Promise<Payment> {
-  const formData = new FormData()
-
-  formData.append('package', data.package)
-  formData.append('tenure', data.tenure)
-  formData.append(
-    'payment_network',
-    data.payment_network,
-  )
-  formData.append(
-    'transaction_reference',
-    data.transaction_reference,
-  )
-  formData.append(
-    'proof_of_payment',
-    data.proof_of_payment,
-  )
-  formData.append(
-    'installment_number',
-    String(data.installment_number),
-  )
+): Promise<PaymentCreated> {
 
   const response = await fetch(
     `${API_BASE_URL}/payments/submit/`,
@@ -37,8 +16,9 @@ export async function submitPayment(
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-      body: formData,
+      body: JSON.stringify(data),
     },
   )
 
@@ -50,18 +30,41 @@ export async function submitPayment(
     : null
 
   if (!response.ok) {
-    const message =
-      result?.detail ||
-      result?.message ||
-      Object.values(result || {})
-        .flat()
-        .find((value) => typeof value === 'string') ||
-      `Payment submission failed with status ${response.status}`
+    const message = getPaymentSubmissionError(
+      result,
+      response.status,
+    )
 
-    throw new Error(String(message))
+    throw new Error(message)
   }
 
-  return result as Payment
+  return result as PaymentCreated
+}
+
+function getPaymentSubmissionError(
+  result: unknown,
+  status: number,
+): string {
+  if (!result || typeof result !== 'object') {
+    return `Payment submission failed with status ${status}`
+  }
+
+  const payload = result as Record<string, unknown>
+  const detail = payload.detail
+
+  if (typeof detail === 'string') return detail
+  if (Array.isArray(detail)) return detail.join(' ')
+
+  const fieldErrors = Object.entries(payload)
+    .flatMap(([field, value]) => {
+      const messages = Array.isArray(value) ? value : [value]
+
+      return messages
+        .filter((message): message is string => typeof message === 'string')
+        .map((message) => `${field}: ${message}`)
+    })
+
+  return fieldErrors[0] || `Payment submission failed with status ${status}`
 }
 
 export async function getPayments(
@@ -83,6 +86,16 @@ export async function getPayment(
   token: string,
 ): Promise<Payment> {
   return apiClient<Payment>(`/payments/${id}/`, {
+    token,
+  })
+}
+
+export async function cancelPayment(
+  id: string,
+  token: string,
+): Promise<Payment> {
+  return apiClient<Payment>(`/payments/${id}/cancel/`, {
+    method: 'POST',
     token,
   })
 }

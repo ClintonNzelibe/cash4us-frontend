@@ -6,6 +6,7 @@ import type {
   TransactionSummary,
   NotificationSummary,
 } from '../types/dashboard'
+import { getMyPackages } from './packageService'
 
 interface PaginatedResponse<T> {
   count: number
@@ -21,6 +22,7 @@ export async function getDashboardData(token: string) {
     referralsResponse,
     transactionsResponse,
     notificationsResponse,
+    memberCycles,
   ] = await Promise.all([
     apiClient<WalletSummary>('/v1/wallet/', {
       token,
@@ -47,6 +49,8 @@ export async function getDashboardData(token: string) {
     >('/v1/notifications/', {
       token,
     }),
+
+    getMyPackages(token),
   ])
 
   const referrals = Array.isArray(referralsResponse)
@@ -61,12 +65,27 @@ export async function getDashboardData(token: string) {
     ? notificationsResponse
     : notificationsResponse.results
 
+  const activeCycle = memberCycles.find(
+    (cycle) => cycle.status === 'ACTIVE',
+  )
+
   return {
     wallet,
     tasks,
     referrals,
     transactions,
     notifications,
-    activePackage: null,
+    activePackage: activeCycle
+      ? {
+          id: activeCycle.id,
+          name: activeCycle.package_name || 'Active package',
+          price: String(activeCycle.package_price ?? 0),
+          duration_days: activeCycle.duration_days ?? 0,
+          started_at: activeCycle.started_at,
+          ends_at: activeCycle.ends_at,
+          status: activeCycle.status,
+          total_bonus_earned: String(activeCycle.total_bonus_earned),
+        }
+      : null,
   }
 }

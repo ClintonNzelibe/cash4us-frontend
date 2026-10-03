@@ -61,32 +61,12 @@ export async function submitTaskProof(
     formData.append('proof_details', payload.proof_details)
   }
 
-  const response = await fetch(
-    'http://127.0.0.1:8000/api/v1/tasks/submissions/create/',
+  return apiClient<TaskSubmission>(
+    '/v1/tasks/submissions/create/',
     {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      token,
       body: formData,
     },
   )
-
-  const contentType = response.headers.get('content-type')
-  const data = contentType?.includes('application/json')
-    ? await response.json()
-    : null
-
-  if (!response.ok) {
-    throw new Error(
-      data?.detail ||
-        data?.message ||
-        Object.values(data || {})
-          .flat()
-          .join(' ') ||
-        `Request failed with status ${response.status}`,
-    )
-  }
-
-  return data as TaskSubmission
 }

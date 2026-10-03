@@ -28,6 +28,7 @@ export interface MemberCycle {
   id: string
   package: string
   package_name?: string
+  package_price?: string | number
   tenure: string
   duration_days?: number
   required_referrals?: number

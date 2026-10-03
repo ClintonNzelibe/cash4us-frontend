@@ -2,6 +2,7 @@ import {
   CheckCircle2,
   Clock3,
   Copy,
+  Download,
   ExternalLink,
   FileImage,
   Flame,
@@ -36,7 +37,7 @@ const statusStyles: Record<string, string> = {
   COMPLETED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
 }
 
-function formatMoney(value: string) {
+function formatMoney(value: string | number) {
   const amount = Number(value)
 
   if (Number.isNaN(amount)) {
@@ -156,16 +157,75 @@ function TaskCard({
       : task.platform
         ? [task.platform]
         : []
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState('')
+
+  const handleDownloadFlyer = async () => {
+    if (!task.flyer) return
+
+    try {
+      setIsDownloading(true)
+      setDownloadError('')
+
+      const response = await fetch(task.flyer)
+
+      if (!response.ok) {
+        throw new Error('Unable to download flyer.')
+      }
+
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+
+      link.href = objectUrl
+      link.download = `${task.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'task-flyer'}.png`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0)
+    } catch {
+      setDownloadError(
+        'Unable to download the flyer. Please try again.',
+      )
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-slate-300">
       {task.flyer && (
-        <div className="aspect-[16/6] overflow-hidden bg-slate-100">
+        <div className="bg-slate-950 p-3 sm:p-5">
           <img
             src={task.flyer}
             alt={task.title}
-            className="h-full w-full object-cover"
+            className="mx-auto max-h-[32rem] w-full rounded-lg object-contain"
           />
+
+          <div className="mx-auto mt-3 flex max-w-xl flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+            <p className="text-xs text-slate-200">
+              Download this flyer, share it through the configured platform, then submit the required proof.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleDownloadFlyer}
+              disabled={isDownloading}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+            >
+              <Download className="h-3.5 w-3.5" />
+              {isDownloading ? 'Downloading...' : 'Download flyer'}
+            </button>
+          </div>
+
+          {downloadError && (
+            <p className="mx-auto mt-2 max-w-xl text-center text-xs text-rose-200">
+              {downloadError}
+            </p>
+          )}
         </div>
       )}
 
@@ -200,7 +260,7 @@ function TaskCard({
             </p>
 
             <p className="mt-0.5 text-xl font-bold text-[#0F766E]">
-              {formatMoney(task.reward)}
+              {formatMoney(task.daily_earning_amount ?? '0')}
             </p>
 
             {task.points > 0 && (
@@ -393,7 +453,11 @@ function SubmissionCard({
           </p>
 
           <p className="mt-1 text-sm font-medium text-slate-700">
-            {formatMoney(submission.task.reward)}
+            {formatMoney(
+              submission.status === 'COMPLETED'
+                ? submission.credited_amount ?? '0'
+                : submission.task.daily_earning_amount ?? '0',
+            )}
           </p>
         </div>
 
@@ -790,7 +854,7 @@ export default function TasksPage() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Complete your assigned tasks and submit proof
+              Complete your assigned task and submit proof
               to earn rewards.
             </p>
           </div>
@@ -798,11 +862,7 @@ export default function TasksPage() {
           {availableTasks.length > 0 && (
             <div className="flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-[#0F766E]">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              {availableTasks.length}{' '}
-              {availableTasks.length === 1
-                ? 'task'
-                : 'tasks'}{' '}
-              available
+              Today&apos;s task available
             </div>
           )}
         </div>
@@ -914,11 +974,11 @@ export default function TasksPage() {
         <div className="mb-4 flex items-end justify-between">
           <div>
             <h2 className="text-lg font-semibold text-[#0F172A]">
-              Available Tasks
+              Today&apos;s Task
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Complete these activities within the required
+              Complete your assigned activity within the required
               time.
             </p>
           </div>

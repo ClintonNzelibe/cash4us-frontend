@@ -21,3 +21,7 @@ export function clearTokens(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY)
   localStorage.removeItem(REFRESH_TOKEN_KEY)
 }
+
+export function setAccessToken(accessToken: string): void {
+  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
+}

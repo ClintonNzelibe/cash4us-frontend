@@ -14,12 +14,14 @@ import { useAuth } from '../../context/AuthContext'
 import { getWallet } from '../../services/walletService'
 import {
   createWithdrawal,
+  getWithdrawalEligibility,
   getWithdrawals,
 } from '../../services/withdrawalService'
 import type { Wallet as WalletData } from '../../types/wallet'
 import type {
   Withdrawal,
   WithdrawalNetwork,
+  WithdrawalEligibility,
 } from '../../types/withdrawal'
 
 const networks: {
@@ -638,6 +640,8 @@ export default function WithdrawalsPage() {
 
   const [withdrawals, setWithdrawals] =
     useState<Withdrawal[]>([])
+  const [eligibility, setEligibility] =
+    useState<WithdrawalEligibility | null>(null)
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -655,14 +659,16 @@ export default function WithdrawalsPage() {
       setIsLoading(true)
       setError('')
 
-      const [walletData, withdrawalData] =
+      const [walletData, withdrawalData, eligibilityData] =
         await Promise.all([
           getWallet(accessToken),
           getWithdrawals(accessToken),
+          getWithdrawalEligibility(accessToken),
         ])
 
       setWallet(walletData)
       setWithdrawals(withdrawalData)
+      setEligibility(eligibilityData)
     } catch (err) {
       setError(
         err instanceof Error
@@ -806,6 +812,40 @@ export default function WithdrawalsPage() {
           </p>
         </div>
       </section>
+
+      {eligibility && (
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <p className="text-sm text-slate-500">Withdrawable</p>
+            <p className="mt-1 text-xl font-bold text-[#0F766E]">
+              {formatMoney(eligibility.total_withdrawable_amount)}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <p className="text-sm text-slate-500">Eligible referral earnings</p>
+            <p className="mt-1 text-xl font-bold text-[#0F172A]">
+              {formatMoney(eligibility.eligible_referral_amount)}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <p className="text-sm text-slate-500">Eligible task/package earnings</p>
+            <p className="mt-1 text-xl font-bold text-[#0F172A]">
+              {formatMoney(eligibility.eligible_task_package_amount)}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+            <p className="text-sm text-amber-700">Restricted earnings</p>
+            <p className="mt-1 text-xl font-bold text-amber-800">
+              {formatMoney(eligibility.restricted_amount)}
+            </p>
+            {eligibility.restriction_reason && (
+              <p className="mt-2 text-xs leading-5 text-amber-800">
+                {eligibility.restriction_reason}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Withdrawal information */}
       <section className="rounded-2xl border border-slate-200 bg-white p-5">

@@ -25,6 +25,7 @@ import ProfilePage from '../pages/profile/ProfilePage'
 import SupportPage from '../pages/support/SupportPage'
 import ResourcesPage from '../pages/resources/ResourcesPage'
 import PartnersPage from '../pages/partners/PartnersPage'
+import CommunityPage from '../pages/community/CommunityPage'
 
 // Admin Dashboard
 import AdminDashboardPage from '../pages/admin/dashboard/AdminDashboardPage'
@@ -49,6 +50,7 @@ import AdminWithdrawalDetailsPage from '../pages/admin/withdrawals/AdminWithdraw
 // Admin Tasks
 import AdminTasksPage from '../pages/admin/tasks/AdminTasksPage'
 import AdminTaskDetailsPage from '../pages/admin/tasks/AdminTaskDetailsPage'
+import AdminTaskSubmissionDetailsPage from '../pages/admin/tasks/AdminTaskSubmissionDetailsPage'
 import AdminTaskCreatePage from '../pages/admin/tasks/AdminTaskCreatePage'
 import AdminTaskEditPage from '../pages/admin/tasks/AdminTaskEditPage'
 
@@ -274,6 +276,11 @@ export default function AppRouter() {
           path="/partners"
           element={<PartnersPage />}
         />
+
+        <Route
+          path="/community"
+          element={<CommunityPage />}
+        />
       </Route>
 
 
@@ -388,6 +395,11 @@ export default function AppRouter() {
         <Route
           path="/admin/tasks/:id/edit"
           element={<AdminTaskEditPage />}
+        />
+
+        <Route
+          path="/admin/tasks/submissions/:id"
+          element={<AdminTaskSubmissionDetailsPage />}
         />
 
 

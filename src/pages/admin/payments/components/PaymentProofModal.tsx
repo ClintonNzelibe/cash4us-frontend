@@ -1,12 +1,11 @@
 import Modal from '../../../../components/ui/Modal'
+import { API_ORIGIN } from '../../../../api/client'
 import type { AdminPayment } from '../../../../types/admin/payments'
 
 interface Props {
   payment: AdminPayment | null
   onClose: () => void
 }
-
-const API_ORIGIN = 'http://127.0.0.1:8000'
 
 function getProofUrl(proof: string) {
   if (proof.startsWith('http://') || proof.startsWith('https://')) {

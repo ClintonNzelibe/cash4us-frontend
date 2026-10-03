@@ -2,6 +2,7 @@ import { apiClient } from '../api/client'
 import type {
   Withdrawal,
   WithdrawalPayload,
+  WithdrawalEligibility,
 } from '../types/withdrawal'
 
 export async function getWithdrawals(
@@ -21,5 +22,14 @@ export async function createWithdrawal(
     method: 'POST',
     token,
     body: JSON.stringify(payload),
+  })
+}
+
+export async function getWithdrawalEligibility(
+  token: string,
+): Promise<WithdrawalEligibility> {
+  return apiClient<WithdrawalEligibility>('/v1/withdrawals/eligibility/', {
+    method: 'GET',
+    token,
   })
 }

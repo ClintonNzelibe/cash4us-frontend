@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 
 import { useAuth } from '../../context/AuthContext'
+import { API_ORIGIN } from '../../api/client'
 import { getPartners } from '../../services/partnerService'
 import type { Partner } from '../../types/partner'
 
@@ -29,7 +30,7 @@ function getLogoUrl(logo: string | null) {
     return logo
   }
 
-  return `http://127.0.0.1:8000${logo.startsWith('/') ? '' : '/'}${logo}`
+  return `${API_ORIGIN}${logo.startsWith('/') ? '' : '/'}${logo}`
 }
 
 export default function PartnersPage() {

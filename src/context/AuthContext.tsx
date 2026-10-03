@@ -16,7 +16,6 @@ import type { LoginRequest, User } from '../types/auth'
 import {
   clearTokens,
   getAccessToken,
-  
   setTokens,
 } from '../utils/authStorage'
 
@@ -25,7 +24,7 @@ interface AuthContextValue {
   accessToken: string | null
   isLoading: boolean
   isAuthenticated: boolean
-  login: (credentials: LoginRequest) => Promise<string>
+  login: (credentials: LoginRequest) => Promise<User>
   logout: () => void
 }
 
@@ -52,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const currentUser = await getCurrentUser(token)
         setUser(currentUser)
+        setAccessToken(getAccessToken())
       } catch {
         clearTokens()
         setAccessToken(null)
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     restoreSession()
   }, [])
 
-  async function login(credentials: LoginRequest): Promise<string> {
+  async function login(credentials: LoginRequest): Promise<User> {
     const response = await loginRequest(credentials)
 
     setTokens(response.access, response.refresh)
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const currentUser = await getCurrentUser(response.access)
     setUser(currentUser)
 
-    return response.access
+    return currentUser
   }
 
   function logout() {

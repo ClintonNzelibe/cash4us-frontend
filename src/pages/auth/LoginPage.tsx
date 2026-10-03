@@ -13,7 +13,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuth } from '../../context/AuthContext'
-import { getAdminDashboard } from '../../services/adminDashboardService'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -94,28 +93,17 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const accessToken = await login({
+      const user = await login({
         email: email.trim().toLowerCase(),
         password,
       })
 
-      /*
-       * The backend's Admin API is protected by IsCash4UsAdmin.
-       * We use the real endpoint to determine whether this
-       * authenticated account has administrator access.
-       */
-      try {
-        await getAdminDashboard(accessToken)
-
+      if (user.is_admin) {
         navigate('/admin', { replace: true })
         return
-      } catch {
-        /*
-         * A normal authenticated member cannot access the
-         * Admin API, so they continue to the member dashboard.
-         */
-        navigate('/dashboard', { replace: true })
       }
+
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(
         err instanceof Error

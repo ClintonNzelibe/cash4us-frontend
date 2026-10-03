@@ -103,15 +103,11 @@ export default function AdminCommunityPoolDetailsPage() {
       setPool(poolResponse)
 
       setRevenues(
-        Array.isArray(revenueResponse)
-          ? revenueResponse
-          : revenueResponse.results || [],
+        revenueResponse,
       )
 
       setEarnings(
-        Array.isArray(earningsResponse)
-          ? earningsResponse
-          : earningsResponse.results || [],
+        earningsResponse,
       )
 
       const confirmedRevenue =
@@ -122,11 +118,7 @@ export default function AdminCommunityPoolDetailsPage() {
           : advertisingRevenueResponse.results || []
 
       const allocatedIds = new Set(
-        (
-          Array.isArray(revenueResponse)
-            ? revenueResponse
-            : revenueResponse.results || []
-        ).map((item) => item.revenue),
+        revenueResponse.map((item) => item.revenue),
       )
 
       setAvailableRevenue(

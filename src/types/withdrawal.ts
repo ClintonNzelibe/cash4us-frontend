@@ -32,3 +32,13 @@ export interface WithdrawalPayload {
   destination_address: string
   amount: string
 }
+
+export interface WithdrawalEligibility {
+  eligible_referral_amount: string
+  eligible_task_package_amount: string
+  restricted_amount: string
+  reserved_amount: string
+  total_withdrawable_amount: string
+  restriction_reason: string
+  next_eligibility_date: string | null
+}

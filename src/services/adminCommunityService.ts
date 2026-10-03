@@ -2,7 +2,6 @@ import { apiClient } from '../api/client'
 import { ADMIN_ENDPOINTS } from '../api/endpoints'
 
 import type {
-  AdminCommunityEarning,
   AdminCommunityPool,
   AdminCommunityPoolRevenue,
   CommunityPoolFilters,
@@ -129,30 +128,16 @@ export async function getCommunityPoolRevenues(
   token: string,
   poolId: string,
 ) {
-  return apiClient<
-    AdminCommunityPoolRevenue[] |
-      PaginatedCommunityResponse<AdminCommunityPoolRevenue>
-  >(
-    ADMIN_ENDPOINTS.communityPoolRevenues(poolId),
-    {
-      token,
-    },
-  )
+  const pool = await getAdminCommunityPool(token, poolId)
+  return pool.allocated_revenue
 }
 
 export async function getCommunityPoolEarnings(
   token: string,
   poolId: string,
 ) {
-  return apiClient<
-    AdminCommunityEarning[] |
-      PaginatedCommunityResponse<AdminCommunityEarning>
-  >(
-    ADMIN_ENDPOINTS.communityPoolEarnings(poolId),
-    {
-      token,
-    },
-  )
+  const pool = await getAdminCommunityPool(token, poolId)
+  return pool.earnings
 }
 
 export { getResults }

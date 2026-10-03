@@ -463,6 +463,10 @@ export default function AdminTasksPage() {
                         <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                           Submitted
                         </th>
+
+                        <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Action
+                        </th>
                       </tr>
                     </thead>
 
@@ -533,6 +537,15 @@ export default function AdminTasksPage() {
                               {formatDate(
                                 submission.submitted_at,
                               )}
+                            </td>
+
+                            <td className="px-5 py-4">
+                              <Link
+                                to={`/admin/tasks/submissions/${submission.id}`}
+                                className="inline-flex rounded-md border border-emerald-200 px-3 py-1.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                              >
+                                Review
+                              </Link>
                             </td>
                           </tr>
                         ),
