@@ -8,6 +8,7 @@ import AdminLayout from '../admin/layouts/AdminLayout'
 // Auth
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
+import LandingPage from '../pages/landing/LandingPage'
 
 // Member Portal
 import DashboardPage from '../pages/dashboard/DashboardPage'
@@ -123,19 +124,8 @@ import AdminAuditLogsPage from '../pages/admin/audit/AdminAuditLogsPage'
 import AdminAuditLogDetailsPage from '../pages/admin/audit/AdminAuditLogDetailsPage'
 
 
-function HomeRedirect() {
-  const { isAuthenticated, isLoading } = useAuth()
-
-  if (isLoading) {
-    return null
-  }
-
-  return (
-    <Navigate
-      to={isAuthenticated ? '/dashboard' : '/login'}
-      replace
-    />
-  )
+function HomePage() {
+  return <LandingPage />
 }
 
 
@@ -184,7 +174,7 @@ export default function AppRouter() {
           ROOT / AUTH
       ====================================================== */}
 
-      <Route path="/" element={<HomeRedirect />} />
+      <Route path="/" element={<HomePage />} />
 
       <Route path="/login" element={<LoginPage />} />
 
