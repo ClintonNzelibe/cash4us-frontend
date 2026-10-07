@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 
 import { useAuth } from '../../context/AuthContext'
+import { PUBLIC_APP_URL } from '../../config/site'
 import { getReferrals } from '../../services/referralService'
 import type { Referral } from '../../types/referral'
 
@@ -79,7 +80,7 @@ export default function ReferralsPage() {
   const [shared, setShared] = useState(false)
 
   const referralLink = user?.referral_code
-    ? `https://cash4us.com/register?ref=${encodeURIComponent(
+    ? `${PUBLIC_APP_URL}/register?ref=${encodeURIComponent(
         user.referral_code,
       )}`
     : ''
