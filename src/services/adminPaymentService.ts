@@ -48,12 +48,16 @@ export function getAdminPayments(
   token: string,
   params?: PaymentFilters,
 ) {
-  return apiClient<AdminPaymentListResponse>(
+  return apiClient<AdminPayment[] | AdminPaymentListResponse>(
     `${ADMIN_ENDPOINTS.payments}${buildQuery(params)}`,
     {
       token,
     },
-  )
+  ).then((response) => (
+    Array.isArray(response)
+      ? { results: response }
+      : response
+  ))
 }
 
 export function getAdminPayment(
