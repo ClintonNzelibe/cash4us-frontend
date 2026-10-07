@@ -80,6 +80,41 @@ async function request(
   })
 }
 
+function collectErrorMessages(value: unknown): string[] {
+  if (typeof value === 'string') return [value]
+
+  if (Array.isArray(value)) {
+    return value.flatMap(collectErrorMessages)
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.values(value).flatMap(collectErrorMessages)
+  }
+
+  return []
+}
+
+function getApiErrorMessage(data: unknown, status: number): string {
+  const fallback = `Request failed with status ${status}`
+
+  if (!data || typeof data !== 'object') return fallback
+
+  const payload = data as Record<string, unknown>
+  const detail = collectErrorMessages(payload.detail)
+  if (detail.length > 0) return detail.join(' ')
+
+  const message = collectErrorMessages(payload.message)
+  if (message.length > 0) return message.join(' ')
+
+  const fieldErrors = Object.entries(payload)
+    .filter(([field]) => field !== 'detail' && field !== 'message')
+    .flatMap(([field, value]) =>
+      collectErrorMessages(value).map((error) => `${field}: ${error}`),
+    )
+
+  return fieldErrors.join(' ') || fallback
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestOptions = {},
@@ -109,11 +144,7 @@ export async function apiClient<T>(
     : null
 
   if (!response.ok) {
-    throw new Error(
-      data?.detail ||
-        data?.message ||
-        `Request failed with status ${response.status}`,
-    )
+    throw new Error(getApiErrorMessage(data, response.status))
   }
 
   return data as T
