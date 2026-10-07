@@ -23,6 +23,7 @@ interface FormState {
   slug: string
   price: string
   payment_amount: string
+  installment_count: string
   referral_bonus_percentage: string
   referral_points: string
   description: string
@@ -35,6 +36,7 @@ const initialForm: FormState = {
   slug: '',
   price: '',
   payment_amount: '',
+  installment_count: '1',
   referral_bonus_percentage: '0',
   referral_points: '0',
   description: '',
@@ -56,6 +58,9 @@ function packageToForm(
       packageData.payment_amount === undefined
         ? ''
         : String(packageData.payment_amount),
+    installment_count: String(
+      packageData.installment_count ?? 1,
+    ),
     referral_bonus_percentage: String(
       packageData.referral_bonus_percentage ?? 0,
     ),
@@ -137,6 +142,8 @@ export default function PackageFormModal({
       form.referral_bonus_percentage,
     )
 
+    const installmentCount = Number(form.installment_count)
+
     const referralPoints = Number(form.referral_points)
     const displayOrder = Number(form.display_order)
 
@@ -164,6 +171,13 @@ export default function PackageFormModal({
     ) {
       setValidationError(
         'Payment amount must be greater than zero.',
+      )
+      return
+    }
+
+    if (![1, 2, 3].includes(installmentCount)) {
+      setValidationError(
+        'Installments must be 1, 2, or 3.',
       )
       return
     }
@@ -204,6 +218,7 @@ export default function PackageFormModal({
       slug: form.slug.trim(),
       price,
       payment_amount: paymentAmount,
+      installment_count: installmentCount,
       referral_bonus_percentage: referralBonus,
       referral_points: referralPoints,
       description: form.description.trim(),
@@ -350,6 +365,29 @@ export default function PackageFormModal({
                     disabled={isSubmitting}
                   />
                 </div>
+              </div>
+
+              {/* Referral bonus */}
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  Installments
+                </label>
+
+                <select
+                  value={form.installment_count}
+                  onChange={(event) =>
+                    updateField(
+                      'installment_count',
+                      event.target.value,
+                    )
+                  }
+                  disabled={isSubmitting}
+                  className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10"
+                >
+                  <option value="1">1 payment</option>
+                  <option value="2">2 payments</option>
+                  <option value="3">3 payments</option>
+                </select>
               </div>
 
               {/* Referral bonus */}

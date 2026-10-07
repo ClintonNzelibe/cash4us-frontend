@@ -556,6 +556,12 @@ export default function AdminPackageDetailsPage() {
             />
 
             <DetailItem
+              label="Installments"
+              value={packageData.installment_count}
+              icon={Hash}
+            />
+
+            <DetailItem
               label="Referral Bonus"
               value={`${packageData.referral_bonus_percentage}%`}
               icon={Percent}

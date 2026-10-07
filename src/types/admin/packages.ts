@@ -13,6 +13,7 @@ export interface AdminPackage {
   slug: string
   price: string | number
   payment_amount: string | number | null
+  installment_count: number
   referral_bonus_percentage: string | number
   referral_points: number
   description: string
@@ -35,6 +36,7 @@ export interface AdminPackagePayload {
   slug: string
   price: string | number
   payment_amount: string | number | null
+  installment_count: number
   referral_bonus_percentage: string | number
   referral_points: number
   description: string
