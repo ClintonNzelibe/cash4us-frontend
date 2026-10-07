@@ -53,3 +53,30 @@ test('copies and shares the configured referral URL', async ({ page }) => {
   expect(await page.evaluate(() => navigator.clipboard.readText()))
     .toBe(referralLink)
 })
+
+test('passes a referral URL code through registration', async ({ page }) => {
+  let registrationPayload: Record<string, unknown> | null = null
+
+  await page.route('**/api/users/register/', async (route) => {
+    registrationPayload = route.request().postDataJSON()
+    await route.fulfill({
+      status: 201,
+      contentType: 'application/json',
+      body: JSON.stringify({}),
+    })
+  })
+
+  await page.goto('/register?ref=refer123')
+
+  await expect(page.locator('#referral_code')).toHaveValue('REFER123')
+  await page.locator('#first_name').fill('Referred')
+  await page.locator('#last_name').fill('Member')
+  await page.locator('#username').fill('referred-member')
+  await page.locator('#email').fill('referred@example.com')
+  await page.locator('#password').fill('Strongpass1')
+  await page.locator('#confirm_password').fill('Strongpass1')
+  await page.getByRole('button', { name: 'Create account' }).click()
+
+  await expect.poll(() => registrationPayload).not.toBeNull()
+  expect(registrationPayload?.referral_code).toBe('REFER123')
+})
