@@ -1,4 +1,4 @@
-const DEFAULT_PUBLIC_APP_URL = 'https://cash4us.org'
+const DEFAULT_PUBLIC_APP_URL = 'https://cash4us-frontend.vercel.app'
 
 function resolvePublicAppUrl(value?: string): string {
   if (!value) return DEFAULT_PUBLIC_APP_URL

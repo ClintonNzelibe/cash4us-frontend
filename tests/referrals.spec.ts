@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test'
 
 const referralCode = 'CODE&42'
-const referralLink = 'https://cash4us.org/register?ref=CODE%2642'
+const referralLink =
+  'https://cash4us-frontend.vercel.app/register?ref=CODE%2642'
 
 test.beforeEach(async ({ context, page }) => {
   await context.grantPermissions([

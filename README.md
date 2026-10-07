@@ -19,7 +19,7 @@ npm run dev
 
 The portal runs at `http://127.0.0.1:5173`.
 
-Copy `.env.example` to `.env` for local development. `VITE_API_BASE_URL` defaults to `http://127.0.0.1:8000/api` when it is not set. `VITE_PUBLIC_APP_URL` controls the public origin used for referral links and defaults to `https://cash4us.org`. These are public browser values; never put secrets in a `VITE_*` variable.
+Copy `.env.example` to `.env` for local development. `VITE_API_BASE_URL` defaults to `http://127.0.0.1:8000/api` when it is not set. `VITE_PUBLIC_APP_URL` controls the public origin used for referral links and currently defaults to `https://cash4us-frontend.vercel.app`; change only this value to `https://cash4us.org` when the production domain is deployed. These are public browser values; never put secrets in a `VITE_*` variable.
 
 For Playwright against a non-default local portal, set `PLAYWRIGHT_BASE_URL`; it defaults to `http://127.0.0.1:5173`.
 
