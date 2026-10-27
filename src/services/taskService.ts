@@ -4,6 +4,11 @@ import type {
   TaskStatistics,
   TaskSubmission,
 } from '../types/task'
+import type {
+  CycleQualification,
+  PromotionalQualification,
+  PromotionalSettlementPreview,
+} from '../types/qualification'
 
 export interface TaskSubmissionPayload {
   task: string
@@ -38,6 +43,33 @@ export async function getTaskStatistics(
     method: 'GET',
     token,
   })
+}
+
+export async function getCycleQualification(
+  token: string,
+): Promise<CycleQualification> {
+  return apiClient<CycleQualification>('/v1/tasks/qualification/', {
+    method: 'GET',
+    token,
+  })
+}
+
+export async function getPromotionalQualification(
+  token: string,
+): Promise<PromotionalQualification> {
+  return apiClient<PromotionalQualification>(
+    '/v1/tasks/promotional-qualification/',
+    { method: 'GET', token },
+  )
+}
+
+export async function getPromotionalSettlementPreview(
+  token: string,
+): Promise<PromotionalSettlementPreview> {
+  return apiClient<PromotionalSettlementPreview>(
+    '/v1/tasks/promotional-settlement-preview/',
+    { method: 'GET', token },
+  )
 }
 
 export async function submitTaskProof(

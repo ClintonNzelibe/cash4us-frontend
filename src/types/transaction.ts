@@ -9,6 +9,8 @@ export type TransactionType =
   | 'GIFT_VOUCHER'
   | 'WITHDRAWAL'
   | 'ADMIN_ADJUSTMENT'
+  | 'PROMOTIONAL_SETTLEMENT'
+  | 'RECOMMITMENT_FUNDING'
 
 export interface Transaction {
   id: string

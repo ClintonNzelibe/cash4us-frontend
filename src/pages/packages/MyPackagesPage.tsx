@@ -3,6 +3,7 @@ import {
   ArrowRight,
   CalendarDays,
   Clock3,
+  CircleCheck,
   LoaderCircle,
   PackageOpen,
   RefreshCw,
@@ -13,7 +14,17 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
 import { getMyPackages } from '../../services/packageService'
+import {
+  getCycleQualification,
+  getPromotionalQualification,
+  getPromotionalSettlementPreview,
+} from '../../services/taskService'
 import type { MemberCycle } from '../../types/package'
+import type {
+  CycleQualification,
+  PromotionalQualification,
+  PromotionalSettlementPreview,
+} from '../../types/qualification'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDate } from '../../utils/formatDate'
 
@@ -24,6 +35,13 @@ export default function MyPackagesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [qualification, setQualification] = useState<CycleQualification | null>(null)
+  const [promotionalQualification, setPromotionalQualification] =
+    useState<PromotionalQualification | null>(null)
+  const [settlementPreview, setSettlementPreview] =
+    useState<PromotionalSettlementPreview | null>(null)
+  const [qualificationError, setQualificationError] = useState<string | null>(null)
+  const [isQualificationLoading, setIsQualificationLoading] = useState(false)
 
   const loadPackages = useCallback(async (isRefresh = false) => {
     if (!accessToken) {
@@ -63,6 +81,62 @@ export default function MyPackagesPage() {
     () => cycles.find((cycle) => cycle.status === 'ACTIVE') ?? null,
     [cycles],
   )
+
+  useEffect(() => {
+    if (!accessToken || !activeCycle) {
+      setQualification(null)
+      setPromotionalQualification(null)
+      setSettlementPreview(null)
+      setQualificationError(null)
+      setIsQualificationLoading(false)
+      return
+    }
+
+    const token = accessToken
+    let isCurrent = true
+
+    async function loadQualification() {
+      setIsQualificationLoading(true)
+      setQualificationError(null)
+
+      const [cycleResult, promotionalResult, previewResult] =
+        await Promise.allSettled([
+          getCycleQualification(token),
+          getPromotionalQualification(token),
+          getPromotionalSettlementPreview(token),
+        ])
+
+      if (!isCurrent) return
+
+      setQualification(
+        cycleResult.status === 'fulfilled' ? cycleResult.value : null,
+      )
+      setPromotionalQualification(
+        promotionalResult.status === 'fulfilled' ? promotionalResult.value : null,
+      )
+      setSettlementPreview(
+        previewResult.status === 'fulfilled' ? previewResult.value : null,
+      )
+
+      const failedRequest = [cycleResult, promotionalResult, previewResult]
+        .find((result) => result.status === 'rejected')
+      if (failedRequest?.status === 'rejected') {
+        setQualificationError(
+          failedRequest.reason instanceof Error
+            ? failedRequest.reason.message
+            : 'Unable to load qualification details.',
+        )
+      }
+
+      setIsQualificationLoading(false)
+    }
+
+    void loadQualification()
+
+    return () => {
+      isCurrent = false
+    }
+  }, [accessToken, activeCycle?.id])
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-8 pb-10">
@@ -148,6 +222,15 @@ export default function MyPackagesPage() {
               Refresh
             </button>
           </div>
+
+          <QualificationPanel
+            cycle={activeCycle}
+            qualification={qualification}
+            promotionalQualification={promotionalQualification}
+            settlementPreview={settlementPreview}
+            isLoading={isQualificationLoading}
+            error={qualificationError}
+          />
         </section>
       ) : (
         <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
@@ -172,6 +255,184 @@ export default function MyPackagesPage() {
       )}
     </div>
   )
+}
+
+function QualificationPanel({
+  cycle,
+  qualification,
+  promotionalQualification,
+  settlementPreview,
+  isLoading,
+  error,
+}: {
+  cycle: MemberCycle
+  qualification: CycleQualification | null
+  promotionalQualification: PromotionalQualification | null
+  settlementPreview: PromotionalSettlementPreview | null
+  isLoading: boolean
+  error: string | null
+}) {
+  const remainingReferrals = qualification
+    ? Math.max(
+      qualification.required_referrals - qualification.verified_qualifying_referrals,
+      0,
+    )
+    : null
+  const totalDays = cycle.duration_days ?? 0
+  const completedDays = qualification?.completed_task_days ?? 0
+  const cycleProgress = totalDays > 0
+    ? Math.min((completedDays / totalDays) * 100, 100)
+    : 0
+  const remainingDays = cycle.ends_at
+    ? Math.max(
+      Math.ceil((new Date(cycle.ends_at).getTime() - Date.now()) / 86_400_000),
+      0,
+    )
+    : null
+
+  return (
+    <section className="border-t border-slate-100 bg-slate-50/70 p-5 sm:p-8">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-[#0F766E]">
+          <CircleCheck size={21} />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-[#0F766E]">Qualification status</p>
+          <h3 className="mt-1 text-lg font-bold text-slate-900">
+            {cycle.package_name || 'Membership'} · {cycle.duration_days ?? '—'}-day tenure
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            These status details are evaluated from your membership-cycle records.
+          </p>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="mt-6 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
+          <LoaderCircle className="animate-spin text-[#0F766E]" size={18} />
+          Loading qualification details...
+        </div>
+      ) : (
+        <>
+          {error && (
+            <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              Some qualification details are unavailable right now: {error}
+            </div>
+          )}
+
+          {qualification && (
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <Detail label="Required referrals" value={String(qualification.required_referrals)} />
+              <Detail label="Qualified referrals" value={String(qualification.verified_qualifying_referrals)} />
+              <Detail label="Remaining referrals" value={String(remainingReferrals)} />
+              <Detail label="Remaining days" value={remainingDays === null ? '—' : String(remainingDays)} />
+            </div>
+          )}
+
+          {qualification && totalDays > 0 && (
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className="font-semibold text-slate-800">Cycle task progress</span>
+                <span className="text-slate-500">
+                  {completedDays} of {totalDays} completed days
+                </span>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-[#0F766E]"
+                  style={{ width: `${cycleProgress}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                {qualification.missed_task_days} missed and {qualification.pending_task_days} pending task days.
+              </p>
+            </div>
+          )}
+
+          {promotionalQualification && (
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Promotional qualification</p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {promotionalQualification.promotional_qualification_eligible
+                      ? 'Your cycle currently meets the promotional qualification criteria.'
+                      : promotionalReason(promotionalQualification.eligibility_reason)}
+                  </p>
+                </div>
+                <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
+                  promotionalQualification.promotional_qualification_eligible
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-amber-100 text-amber-800'
+                }`}>
+                  {promotionalQualification.promotional_qualification_eligible
+                    ? 'Eligible'
+                    : 'Not eligible yet'}
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Detail
+                  label="Qualification deadline"
+                  value={promotionalQualification.promotional_deadline_at
+                    ? formatDate(promotionalQualification.promotional_deadline_at)
+                    : 'Not configured'}
+                />
+                <Detail
+                  label="Promotional referrals"
+                  value={promotionalQualification.promotional_required_referrals === null
+                    ? 'Not configured'
+                    : `${promotionalQualification.verified_qualifying_referrals} of ${promotionalQualification.promotional_required_referrals}`}
+                />
+              </div>
+            </div>
+          )}
+
+          {settlementPreview?.preview_available && (
+            <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+              <p className="text-sm font-semibold text-emerald-900">Settlement preview</p>
+              <p className="mt-1 text-sm text-emerald-800">
+                {settlementPreview.settlement_ready
+                  ? 'The backend reports this settlement is ready for internal review.'
+                  : settlementPreview.blockers.length > 0
+                    ? `Not ready: ${settlementPreview.blockers.map(prettyLabel).join(', ')}.`
+                    : 'A settlement preview is available, but it is not ready.'}
+              </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Detail
+                  label="Remaining promotional entitlement"
+                  value={formatCurrency(settlementPreview.remaining_promotional_entitlement)}
+                />
+                <Detail
+                  label="Proposed additional credit"
+                  value={formatCurrency(settlementPreview.proposed_additional_credit)}
+                />
+              </div>
+              <p className="mt-3 text-xs text-emerald-800">
+                Preview only — settlement confirmation is not available here.
+              </p>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  )
+}
+
+function promotionalReason(reason: string) {
+  const labels: Record<string, string> = {
+    UNVERIFIED_OR_PRE_PROMOTION_CYCLE: 'This cycle does not have verified promotional terms.',
+    TENURE_NOT_PROMOTION_ELIGIBLE: 'This tenure is not eligible for the promotional qualification.',
+    INCOMPLETE_PROMOTIONAL_TERMS: 'Promotional terms for this cycle are incomplete.',
+    CYCLE_NOT_ACTIVE: 'Only an active cycle can qualify for this promotion.',
+    QUALIFICATION_DEADLINE_PASSED: 'The promotional qualification deadline has passed.',
+    REFERRAL_TARGET_NOT_MET: 'The required qualifying referrals have not yet been met.',
+  }
+
+  return labels[reason] ?? prettyLabel(reason)
+}
+
+function prettyLabel(value: string) {
+  return value.toLowerCase().replace(/_/g, ' ')
 }
 
 function StateCard({

@@ -153,7 +153,7 @@ function AdminRoute({
 }: {
   children: React.ReactNode
 }) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
 
   if (isLoading) {
     return null
@@ -161,6 +161,10 @@ function AdminRoute({
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (!user?.is_admin) {
+    return <Navigate to="/dashboard" replace />
   }
 
   return children

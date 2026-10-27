@@ -17,7 +17,7 @@ export interface Tenure {
   id: string
   duration_days: number
   required_referrals: number
-  active: boolean
+  is_active: boolean
 }
 
 export interface PackageDetail extends Package {
