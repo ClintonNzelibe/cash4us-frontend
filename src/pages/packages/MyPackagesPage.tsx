@@ -15,11 +15,23 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getMyPackages } from '../../services/packageService'
 import {
+  getRecommitmentEligibility,
+  getRecommitmentOptions,
+  getRecommitmentOrders,
+  getRecommitmentQuote,
+} from '../../services/recommitmentService'
+import {
   getCycleQualification,
   getPromotionalQualification,
   getPromotionalSettlementPreview,
 } from '../../services/taskService'
 import type { MemberCycle } from '../../types/package'
+import type {
+  RecommitmentEligibility,
+  RecommitmentOption,
+  RecommitmentOrderHistoryItem,
+  RecommitmentQuoteResponse,
+} from '../../types/recommitment'
 import type {
   CycleQualification,
   PromotionalQualification,
@@ -253,7 +265,192 @@ export default function MyPackagesPage() {
           </button>
         </div>
       )}
+
+      <RecommitmentReadiness accessToken={accessToken} />
     </div>
+  )
+}
+
+function RecommitmentReadiness({ accessToken }: { accessToken: string | null }) {
+  const [eligibility, setEligibility] = useState<RecommitmentEligibility | null>(null)
+  const [options, setOptions] = useState<RecommitmentOption[]>([])
+  const [orders, setOrders] = useState<RecommitmentOrderHistoryItem[]>([])
+  const [selectedOption, setSelectedOption] = useState<RecommitmentOption | null>(null)
+  const [quote, setQuote] = useState<RecommitmentQuoteResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!accessToken) {
+      setLoading(false)
+      return
+    }
+
+    const token = accessToken
+    let isCurrent = true
+    async function loadReadiness() {
+      setLoading(true)
+      setError(null)
+      try {
+        const [nextEligibility, nextOptions, nextOrders] = await Promise.all([
+          getRecommitmentEligibility(token),
+          getRecommitmentOptions(token),
+          getRecommitmentOrders(token),
+        ])
+        if (!isCurrent) return
+        setEligibility(nextEligibility)
+        setOptions(nextOptions.options)
+        setOrders(nextOrders)
+        setSelectedOption(nextOptions.options.find((option) => option.eligible) ?? null)
+      } catch (requestError) {
+        if (!isCurrent) return
+        setError(requestError instanceof Error ? requestError.message : 'Unable to load recommitment readiness.')
+      } finally {
+        if (isCurrent) setLoading(false)
+      }
+    }
+
+    void loadReadiness()
+    return () => { isCurrent = false }
+  }, [accessToken])
+
+  useEffect(() => {
+    if (!accessToken || !selectedOption) {
+      setQuote(null)
+      return
+    }
+
+    const token = accessToken
+    const option = selectedOption
+    let isCurrent = true
+    async function loadQuote() {
+      setQuoteLoading(true)
+      try {
+        const nextQuote = await getRecommitmentQuote(
+          token,
+          option.package_id,
+          option.tenure_id,
+        )
+        if (isCurrent) setQuote(nextQuote)
+      } catch (requestError) {
+        if (isCurrent) {
+          setError(requestError instanceof Error ? requestError.message : 'Unable to load the funding plan.')
+        }
+      } finally {
+        if (isCurrent) setQuoteLoading(false)
+      }
+    }
+
+    void loadQuote()
+    return () => { isCurrent = false }
+  }, [accessToken, selectedOption])
+
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-[#0F766E]">
+          <PackageOpen size={21} />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-[#0F766E]">Recommitment readiness</p>
+          <h2 className="mt-1 text-xl font-bold text-slate-900">Plan your next membership cycle</h2>
+          <p className="mt-1 text-sm text-slate-500">Review-only funding information from your current Cash4Us records.</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="mt-6 flex items-center gap-3 text-sm text-slate-600">
+          <LoaderCircle className="animate-spin text-[#0F766E]" size={18} />
+          Loading recommitment readiness...
+        </div>
+      ) : error ? (
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{error}</div>
+      ) : !eligibility?.source_cycle ? (
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600">
+          Recommitment becomes available after a membership cycle is available for review.
+        </div>
+      ) : (
+        <>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <Detail label="Current package" value={eligibility.source_cycle.package_name} />
+            <Detail label="Cycle status" value={prettyLabel(eligibility.source_cycle.status)} />
+            <Detail label="Current tenure" value={`${eligibility.source_cycle.duration_days} days`} />
+          </div>
+
+          {!eligibility.available && (
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              {eligibility.blockers.length > 0
+                ? eligibility.blockers.map(prettyLabel).join(', ')
+                : 'Recommitment is not currently available for this cycle.'}
+            </div>
+          )}
+
+          {options.length > 0 && (
+            <div className="mt-6">
+              <label className="text-sm font-semibold text-slate-800" htmlFor="recommitment-option">Available package options</label>
+              <select
+                id="recommitment-option"
+                value={selectedOption ? `${selectedOption.package_id}:${selectedOption.tenure_id}` : ''}
+                onChange={(event) => setSelectedOption(options.find((option) => `${option.package_id}:${option.tenure_id}` === event.target.value) ?? null)}
+                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+              >
+                <option value="">Choose an eligible package option</option>
+                {options.map((option) => (
+                  <option
+                    key={`${option.package_id}:${option.tenure_id}`}
+                    value={`${option.package_id}:${option.tenure_id}`}
+                    disabled={!option.eligible}
+                  >
+                    {option.package_name} · {option.duration_days} days{option.eligible ? '' : ` (${option.blockers.map(prettyLabel).join(', ')})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {selectedOption && (
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <Detail label="Package price" value={formatCurrency(selectedOption.package_price)} />
+              <Detail label="Total payment" value={formatCurrency(selectedOption.payment_amount)} />
+              <Detail label="Configured fee" value={formatCurrency(selectedOption.fee)} />
+            </div>
+          )}
+
+          {quoteLoading ? (
+            <div className="mt-5 flex items-center gap-2 text-sm text-slate-600"><LoaderCircle className="animate-spin text-[#0F766E]" size={16} /> Loading funding plan...</div>
+          ) : quote?.quote.available && quote.funding_plan.available ? (
+            <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+              <p className="text-sm font-semibold text-emerald-900">Funding plan</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <Detail label="Eligible wallet funding" value={formatCurrency(quote.funding_plan.potential_wallet_contribution)} />
+                <Detail label="External-payment shortfall" value={formatCurrency(quote.funding_plan.external_shortfall ?? '0')} />
+                <Detail label="Total required funding" value={formatCurrency(quote.funding_plan.total_required_funding ?? '0')} />
+              </div>
+              <p className="mt-3 text-xs text-emerald-800">Planning only — no funds are reserved, moved, or charged here.</p>
+            </div>
+          ) : selectedOption ? (
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              {quote?.quote.eligibility.blockers?.map(prettyLabel).join(', ') || 'This option is not currently available.'}
+            </div>
+          ) : null}
+
+          {orders.length > 0 && (
+            <div className="mt-6 border-t border-slate-100 pt-5">
+              <p className="text-sm font-semibold text-slate-800">Existing recommitment orders</p>
+              <div className="mt-3 space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="flex flex-col gap-1 rounded-2xl border border-slate-200 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+                    <span className="font-semibold text-slate-800">{order.target_package_name} · {order.target_duration_days} days</span>
+                    <span className="text-slate-500">{prettyLabel(order.status)} · {formatCurrency(order.target_payment_amount_snapshot)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </section>
   )
 }
 
