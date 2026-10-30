@@ -35,6 +35,7 @@ export default function AdminTaskEditPage() {
 
   useEffect(() => {
     if (!accessToken || !id) return
+    let active = true
 
     async function loadTask() {
         if (!id || !accessToken) return
@@ -48,19 +49,21 @@ export default function AdminTaskEditPage() {
             accessToken,
             )
 
-        setTask(response)
+        if (active) setTask(response)
       } catch (error) {
+        if (!active) return
         setError(
           error instanceof Error
             ? error.message
             : 'Failed to load task.',
         )
       } finally {
-        setLoading(false)
+        if (active) setLoading(false)
       }
     }
 
     loadTask()
+    return () => { active = false }
   }, [accessToken, id])
 
   async function handleSubmit(

@@ -1,92 +1,58 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-
-import Card from '../../../components/ui/Card'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import PageLoader from '../../../components/ui/PageLoader'
 import { useAuth } from '../../../context/AuthContext'
-import {
-  createAdminResource,
-} from '../../../services/adminResourceService'
-
-import type {
-  ResourceFormData,
-} from '../../../types/admin/resources'
-
+import { getAdminResource, updateAdminResource } from '../../../services/adminResourceService'
+import type { AdminResource, ResourceFormData } from '../../../types/admin/resources'
 import ResourceForm from './components/ResourceForm'
 
-export default function AdminResourceCreatePage() {
-  const navigate = useNavigate()
+export default function AdminResourceEditPage() {
+  const { id } = useParams<{ id: string }>()
   const { accessToken } = useAuth()
-
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const [resource, setResource] = useState<AdminResource | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (
-    data: ResourceFormData,
-  ) => {
-    if (!accessToken) {
-      throw new Error('Authentication required.')
-    }
+  useEffect(() => {
+    if (!accessToken || !id) return
+    let active = true
+    setLoading(true)
+    getAdminResource(accessToken, id)
+      .then(value => { if (active) setResource(value) })
+      .catch(err => { if (active) setError(err instanceof Error ? err.message : 'Unable to load resource.') })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [accessToken, id])
 
+  const initialData = useMemo<Partial<ResourceFormData> | undefined>(() => resource ? {
+    title: resource.title,
+    description: resource.description,
+    resource_type: resource.resource_type,
+    external_link: resource.external_link || '',
+    resource_file: null,
+  } : undefined, [resource])
+
+  async function save(data: ResourceFormData) {
+    if (!accessToken || !id) throw new Error('Authentication required.')
+    setSaving(true)
     try {
-      setLoading(true)
-      setError('')
-
-      const resource =
-        await createAdminResource(
-          accessToken,
-          data,
-        )
-
-      navigate(
-        `/admin/resources/${resource.id}`,
-      )
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Failed to create resource.'
-
-      setError(message)
-      throw new Error(message)
+      await updateAdminResource(accessToken, id, data)
+      navigate(`/admin/resources/${id}`)
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
   }
 
+  if (loading) return <PageLoader />
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          to="/admin/resources"
-          className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
-        >
-          ← Back to Resources
-        </Link>
-
-        <h1 className="mt-3 text-2xl font-semibold text-slate-900">
-          Add Resource
-        </h1>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Add a new learning resource to the member library.
-        </p>
-      </div>
-
-      {error && (
-        <Card>
-          <div className="p-4">
-            <p className="text-sm text-red-600">
-              {error}
-            </p>
-          </div>
-        </Card>
-      )}
-
-      <ResourceForm
-        loading={loading}
-        submitLabel="Create Resource"
-        onSubmit={handleSubmit}
-      />
+      <Link to="/admin/resources" className="text-sm font-medium text-emerald-700">Back to Resources</Link>
+      <h1 className="text-2xl font-semibold text-slate-900">Edit Resource</h1>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      {resource && <ResourceForm initialData={initialData} existingFileUrl={resource.resource_file || undefined}
+        loading={saving} submitLabel="Save Changes" onSubmit={save} />}
     </div>
   )
 }

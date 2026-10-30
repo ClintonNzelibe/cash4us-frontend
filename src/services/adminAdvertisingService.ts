@@ -170,7 +170,11 @@ export async function createAdminCampaign(
     {
       method: 'POST',
       token,
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        start_date: data.start_date || null,
+        end_date: data.end_date || null,
+      }),
     },
   )
 }
@@ -185,7 +189,11 @@ export async function updateAdminCampaign(
     {
       method: 'PATCH',
       token,
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        ...(data.start_date !== undefined ? { start_date: data.start_date || null } : {}),
+        ...(data.end_date !== undefined ? { end_date: data.end_date || null } : {}),
+      }),
     },
   )
 }

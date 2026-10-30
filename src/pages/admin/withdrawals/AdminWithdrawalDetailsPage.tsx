@@ -376,7 +376,7 @@ export default function AdminWithdrawalDetailsPage() {
               </p>
 
               <p className="mt-1 font-medium text-slate-900">
-                {withdrawal.user.username ||
+                {withdrawal.member.username ||
                   '—'}
               </p>
             </div>
@@ -387,7 +387,7 @@ export default function AdminWithdrawalDetailsPage() {
               </p>
 
               <p className="mt-1 break-all font-medium text-slate-900">
-                {withdrawal.user.email ||
+                {withdrawal.member.email ||
                   '—'}
               </p>
             </div>
@@ -399,7 +399,7 @@ export default function AdminWithdrawalDetailsPage() {
 
               <p className="mt-1 font-medium text-slate-900">
                 {
-                  withdrawal.user
+                  withdrawal.member
                     .membership_code || '—'
                 }
               </p>
@@ -422,8 +422,7 @@ export default function AdminWithdrawalDetailsPage() {
               </p>
 
               <p className="mt-1 font-medium text-slate-900">
-                {withdrawal.cycle?.package
-                  ?.name || '—'}
+                {withdrawal.cycle?.package || '—'}
               </p>
             </div>
 
@@ -433,13 +432,7 @@ export default function AdminWithdrawalDetailsPage() {
               </p>
 
               <p className="mt-1 font-medium text-slate-900">
-                {withdrawal.cycle?.tenure
-                  ?.name ||
-                  withdrawal.cycle?.tenure
-                    ?.duration_months ||
-                  withdrawal.cycle?.tenure
-                    ?.duration ||
-                  '—'}
+                {withdrawal.cycle?.tenure_days || '—'}
               </p>
             </div>
           </div>
@@ -481,10 +474,7 @@ export default function AdminWithdrawalDetailsPage() {
               </p>
 
               <p className="mt-1 break-all text-sm text-slate-800">
-                {withdrawal.processed_by
-                  ?.email ||
-                  withdrawal.processed_by
-                    ?.username ||
+                {withdrawal.processed_by_email ||
                   '—'}
               </p>
             </div>

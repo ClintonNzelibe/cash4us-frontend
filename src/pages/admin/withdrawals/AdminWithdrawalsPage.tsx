@@ -274,21 +274,21 @@ export default function AdminWithdrawalsPage() {
                     >
                       <td className="px-5 py-4">
                         <p className="font-medium text-slate-900">
-                          {withdrawal.user.username ||
-                            withdrawal.user.email ||
+                          {withdrawal.member.username ||
+                            withdrawal.member.email ||
                             '—'}
                         </p>
 
                         <p className="mt-0.5 text-xs text-slate-500">
-                          {withdrawal.user.email ||
+                          {withdrawal.member.email ||
                             '—'}
                         </p>
 
-                        {withdrawal.user
+                        {withdrawal.member
                           .membership_code && (
                           <p className="mt-0.5 text-xs text-slate-400">
                             {
-                              withdrawal.user
+                              withdrawal.member
                                 .membership_code
                             }
                           </p>
@@ -365,13 +365,13 @@ export default function AdminWithdrawalsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-slate-900">
-                        {withdrawal.user.username ||
-                          withdrawal.user.email ||
+                        {withdrawal.member.username ||
+                          withdrawal.member.email ||
                           '—'}
                       </p>
 
                       <p className="mt-0.5 truncate text-xs text-slate-500">
-                        {withdrawal.user.email ||
+                        {withdrawal.member.email ||
                           '—'}
                       </p>
                     </div>

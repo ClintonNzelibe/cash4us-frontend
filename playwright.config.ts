@@ -13,4 +13,18 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
+  projects: [
+    {
+      name: 'chromium',
+    },
+    {
+      name: 'google-chrome',
+      use: {
+        browserName: 'chromium',
+        channel: 'chrome',
+        headless: false,
+        launchOptions: { slowMo: 350 },
+      },
+    },
+  ],
 })

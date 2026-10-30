@@ -7,6 +7,7 @@ import type {
 
 interface Props {
   initialData?: Partial<ResourceFormData>
+  existingFileUrl?: string
   loading?: boolean
   submitLabel: string
   onSubmit: (data: ResourceFormData) => Promise<void>
@@ -22,6 +23,7 @@ const defaultData: ResourceFormData = {
 
 export default function ResourceForm({
   initialData,
+  existingFileUrl,
   loading = false,
   submitLabel,
   onSubmit,
@@ -215,7 +217,7 @@ export default function ResourceForm({
             className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
           />
 
-          {initialData?.resource_file && (
+          {(existingFileUrl || initialData?.resource_file) && (
             <p className="mt-2 text-xs text-slate-500">
               A file is already attached. Choose a new
               file only if you want to replace it.

@@ -28,8 +28,8 @@ export interface AdminWithdrawalTenure {
 export interface AdminWithdrawalCycle {
   id?: string
   status?: string
-  package?: AdminWithdrawalPackage | null
-  tenure?: AdminWithdrawalTenure | null
+  package?: string | null
+  tenure_days?: number | null
 }
 
 export interface AdminWithdrawalProcessedBy {
@@ -40,7 +40,7 @@ export interface AdminWithdrawalProcessedBy {
 
 export interface AdminWithdrawal {
   id: string
-  user: AdminWithdrawalMember
+  member: AdminWithdrawalMember
   cycle?: AdminWithdrawalCycle | null
   destination_network: WithdrawalNetwork
   destination_address: string
@@ -48,7 +48,7 @@ export interface AdminWithdrawal {
   admin_fee: string | number
   net_amount: string | number
   status: WithdrawalStatus
-  processed_by?: AdminWithdrawalProcessedBy | null
+  processed_by_email?: string | null
   remarks: string
   requested_at: string
   processed_at: string | null
