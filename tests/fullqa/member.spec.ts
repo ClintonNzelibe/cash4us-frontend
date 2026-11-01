@@ -34,7 +34,7 @@ test('member support creation, validation, detail modal and received reply',asyn
   await expect(page.getByText('Your support ticket has been submitted.')).toBeVisible()
   await page.reload()
   await page.getByRole('button').filter({hasText:subject}).click()
-  await expect(page.getByRole('heading',{name:subject})).toBeVisible()
+  await expect(page.getByRole('heading',{name:subject,level:3,exact:true})).toBeVisible()
   const list=await api(page,'/v1/support/')
   const item=(list.body.results??list.body).find((x:any)=>x.subject===subject)
   expect(item.message).toBe('Synthetic member question')

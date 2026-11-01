@@ -4,7 +4,7 @@ process.env.QA_RUN = run
 const output = `../qa-artifacts/runs/${run}`
 export default defineConfig({
   testDir: './tests/fullqa', timeout: 180_000, expect: { timeout: 30_000 },
-  workers: 1, fullyParallel: false,
+  workers: 1, fullyParallel: false, retries: 0,
   outputDir: `${output}/browser`,
   reporter: [['list'], ['json', { outputFile: `${output}/results.json` }], ['html', { outputFolder: `${output}/html`, open: 'never' }]],
   use: { baseURL: 'http://127.0.0.1:5180', channel: 'chrome', headless: false, actionTimeout:20_000,

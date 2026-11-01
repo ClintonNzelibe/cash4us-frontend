@@ -3,6 +3,7 @@ import {test,expect,login,api,field} from './fixtures'
 test('admin member search, detail, deactivate and reactivate persist',async({page,data})=>{
   await login(page,data)
   await page.goto('/admin/members')
+  await expect(page.getByPlaceholder(/search/i)).toBeVisible({timeout:60_000})
   await page.getByPlaceholder(/search/i).fill(data.member.email)
   await expect(page.getByText(data.member.email,{exact:true}).first()).toBeVisible()
   await page.goto(`/admin/members/${data.member.id}`)

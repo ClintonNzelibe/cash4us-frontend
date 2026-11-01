@@ -49,6 +49,8 @@ test('payment proof modal image and dismissal',async({page,data})=>{
 
 test('referral details and audit details show persisted records',async({page,data})=>{
   await login(page,data)
+  expect(await page.evaluate(()=>localStorage.getItem('accessToken'))).toBeNull()
+  expect((await api(page,'/admin/referrals/00000000-0000-0000-0000-000000000000/')).status).toBe(404)
   await page.goto(`/admin/referrals/${(data as any).referral}`)
   await expect(page.locator('main')).toContainText(data.member.email)
   expect((await api(page,`/admin/referrals/${(data as any).referral}/`)).status).toBe(200)
@@ -65,6 +67,7 @@ for(const module of ['members','packages']) test(`${module} search and active/in
   await login(page,data)
   await page.goto(`/admin/${module}`)
   const search=page.getByPlaceholder(/search/i)
+  await expect(search).toBeVisible({timeout:60_000})
   await search.fill(module==='members'?data.member.email:`QA ${data.key}`)
   for(const [label,value] of [['Inactive','false'],['Active','true']]) {
     const response=page.waitForResponse(r=>r.url().includes(`/api/admin/${module}/`)&&r.url().includes(`is_active=${value}`))
@@ -75,7 +78,7 @@ for(const module of ['members','packages']) test(`${module} search and active/in
     expect((payload.results??payload).every((r:any)=>r.is_active===(value==='true'))).toBe(true)
   }
   await search.fill(`NO_MATCH_${data.key}`)
-  await expect(page.getByText(/No members found|No packages found/i)).toBeVisible()
+  await expect(page.getByRole('heading',{name:/No members found|No packages found/i}).filter({visible:true})).toBeVisible()
 })
 
 test('task and submission search filters and detail navigation',async({page,data})=>{

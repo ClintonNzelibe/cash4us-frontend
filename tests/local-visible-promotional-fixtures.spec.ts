@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fullqa/fixtures'
 
 const password = 'VisibleE2E42'
 
