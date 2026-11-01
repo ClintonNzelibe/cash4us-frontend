@@ -1,3 +1,5 @@
+import { lazy, Suspense } from 'react'
+import PageLoader from '../components/ui/PageLoader'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { useAuth } from '../context/AuthContext'
@@ -29,100 +31,101 @@ import PartnersPage from '../pages/partners/PartnersPage'
 import CommunityPage from '../pages/community/CommunityPage'
 
 // Admin Dashboard
-import AdminDashboardPage from '../pages/admin/dashboard/AdminDashboardPage'
 
 // Admin Members
-import AdminMembersPage from '../pages/admin/members/AdminMembersPage'
-import AdminMemberDetailsPage from '../pages/admin/members/AdminMemberDetailsPage'
 
 // Admin Packages
-import AdminPackagesPage from '../pages/admin/packages/AdminPackagesPage'
-import AdminPackageDetailsPage from '../pages/admin/packages/AdminPackageDetailsPage'
-import AdminPackageCreatePage from '../pages/admin/packages/AdminPackageCreatePage'
 
 // Admin Payments
-import AdminPaymentsPage from '../pages/admin/payments/AdminPaymentsPage'
-import AdminPaymentDetailsPage from '../pages/admin/payments/AdminPaymentDetailsPage'
 
 // Admin Withdrawals
-import AdminWithdrawalsPage from '../pages/admin/withdrawals/AdminWithdrawalsPage'
-import AdminWithdrawalDetailsPage from '../pages/admin/withdrawals/AdminWithdrawalDetailsPage'
 
 // Admin Tasks
-import AdminTasksPage from '../pages/admin/tasks/AdminTasksPage'
-import AdminTaskDetailsPage from '../pages/admin/tasks/AdminTaskDetailsPage'
-import AdminTaskSubmissionDetailsPage from '../pages/admin/tasks/AdminTaskSubmissionDetailsPage'
-import AdminTaskCreatePage from '../pages/admin/tasks/AdminTaskCreatePage'
-import AdminTaskEditPage from '../pages/admin/tasks/AdminTaskEditPage'
 
 // Admin Wallets
-import AdminWalletsPage from '../pages/admin/wallets/AdminWalletsPage'
-import AdminWalletDetailsPage from '../pages/admin/wallets/AdminWalletDetailsPage'
 
 // Admin Transactions
-import AdminTransactionsPage from '../pages/admin/transactions/AdminTransactionsPage'
-import AdminTransactionDetailsPage from '../pages/admin/transactions/AdminTransactionDetailsPage'
 
 // Admin Referrals
-import AdminReferralsPage from '../pages/admin/referrals/AdminReferralsPage'
-import AdminReferralDetailsPage from '../pages/admin/referrals/AdminReferralDetailsPage'
 
 // Admin Rewards
-import AdminPointAccountsPage from '../pages/admin/rewards/AdminPointAccountsPage'
-import AdminPointAccountDetailsPage from '../pages/admin/rewards/AdminPointAccountDetailsPage'
-import AdminPointTransactionsPage from '../pages/admin/rewards/AdminPointTransactionsPage'
-import AdminPointTransactionDetailsPage from '../pages/admin/rewards/AdminPointTransactionDetailsPage'
-import AdminLeaderboardPage from '../pages/admin/rewards/AdminLeaderboardPage'
-import AdminAwardsPage from '../pages/admin/rewards/AdminAwardsPage'
-import AdminAwardDetailsPage from '../pages/admin/rewards/AdminAwardDetailsPage'
-import AdminAwardCreatePage from '../pages/admin/rewards/AdminAwardCreatePage'
-import AdminAwardEditPage from '../pages/admin/rewards/AdminAwardEditPage'
-import AdminUserAwardsPage from '../pages/admin/rewards/AdminUserAwardsPage'
-import AdminUserAwardDetailsPage from '../pages/admin/rewards/AdminUserAwardDetailsPage'
 
 // Admin Advertising
-import AdminAdvertisersPage from '../pages/admin/advertising/AdminAdvertisersPage'
-import AdminAdvertiserCreatePage from '../pages/admin/advertising/AdminAdvertiserCreatePage'
-import AdminAdvertiserDetailsPage from '../pages/admin/advertising/AdminAdvertiserDetailsPage'
-import AdminAdvertiserEditPage from '../pages/admin/advertising/AdminAdvertiserEditPage'
-import AdminCampaignsPage from '../pages/admin/advertising/AdminCampaignsPage'
-import AdminCampaignCreatePage from '../pages/admin/advertising/AdminCampaignCreatePage'
-import AdminCampaignDetailsPage from '../pages/admin/advertising/AdminCampaignDetailsPage'
-import AdminCampaignEditPage from '../pages/admin/advertising/AdminCampaignEditPage'
-import AdminAdvertisingRevenuePage from '../pages/admin/advertising/AdminAdvertisingRevenuePage'
-import AdminAdvertisingRevenueCreatePage from '../pages/admin/advertising/AdminAdvertisingRevenueCreatePage'
-import AdminAdvertisingRevenueDetailsPage from '../pages/admin/advertising/AdminAdvertisingRevenueDetailsPage'
 
 // Admin Community
-import AdminCommunityPoolsPage from '../pages/admin/community/AdminCommunityPoolsPage'
-import AdminCommunityPoolDetailsPage from '../pages/admin/community/AdminCommunityPoolDetailsPage'
-import AdminCommunityPoolCreatePage from '../pages/admin/community/AdminCommunityPoolCreatePage'
 
 // Admin Support
-import AdminSupportTicketsPage from '../pages/admin/support/AdminSupportTicketsPage'
-import AdminSupportTicketDetailsPage from '../pages/admin/support/AdminSupportTicketDetailsPage'
 
 // Admin Resources
-import AdminResourcesPage from '../pages/admin/resources/AdminResourcesPage'
-import AdminResourceDetailsPage from '../pages/admin/resources/AdminResourceDetailsPage'
-import AdminResourceCreatePage from '../pages/admin/resources/AdminResourceCreatePage'
-import AdminResourceEditPage from '../pages/admin/resources/AdminResourceEditPage'
 
 // Admin Partners
-import AdminPartnersPage from '../pages/admin/partners/AdminPartnersPage'
-import AdminPartnerDetailsPage from '../pages/admin/partners/AdminPartnerDetailsPage'
-import AdminPartnerCreatePage from '../pages/admin/partners/AdminPartnerCreatePage'
-import AdminPartnerEditPage from '../pages/admin/partners/AdminPartnerEditPage'
 
 // Admin Notifications
-import AdminNotificationsPage from '../pages/admin/notifications/AdminNotificationsPage'
-import AdminNotificationDetailsPage from '../pages/admin/notifications/AdminNotificationDetailsPage'
-import AdminNotificationSendPage from '../pages/admin/notifications/AdminNotificationSendPage'
 
 // Admin Audit
-import AdminAuditLogsPage from '../pages/admin/audit/AdminAuditLogsPage'
-import AdminAuditLogDetailsPage from '../pages/admin/audit/AdminAuditLogDetailsPage'
 
+
+const AdminDashboardPage = lazy(() => import('../pages/admin/dashboard/AdminDashboardPage'))
+const AdminMembersPage = lazy(() => import('../pages/admin/members/AdminMembersPage'))
+const AdminMemberDetailsPage = lazy(() => import('../pages/admin/members/AdminMemberDetailsPage'))
+const AdminPackagesPage = lazy(() => import('../pages/admin/packages/AdminPackagesPage'))
+const AdminPackageDetailsPage = lazy(() => import('../pages/admin/packages/AdminPackageDetailsPage'))
+const AdminPackageCreatePage = lazy(() => import('../pages/admin/packages/AdminPackageCreatePage'))
+const AdminPaymentsPage = lazy(() => import('../pages/admin/payments/AdminPaymentsPage'))
+const AdminPaymentDetailsPage = lazy(() => import('../pages/admin/payments/AdminPaymentDetailsPage'))
+const AdminWithdrawalsPage = lazy(() => import('../pages/admin/withdrawals/AdminWithdrawalsPage'))
+const AdminWithdrawalDetailsPage = lazy(() => import('../pages/admin/withdrawals/AdminWithdrawalDetailsPage'))
+const AdminTasksPage = lazy(() => import('../pages/admin/tasks/AdminTasksPage'))
+const AdminTaskDetailsPage = lazy(() => import('../pages/admin/tasks/AdminTaskDetailsPage'))
+const AdminTaskSubmissionDetailsPage = lazy(() => import('../pages/admin/tasks/AdminTaskSubmissionDetailsPage'))
+const AdminTaskCreatePage = lazy(() => import('../pages/admin/tasks/AdminTaskCreatePage'))
+const AdminTaskEditPage = lazy(() => import('../pages/admin/tasks/AdminTaskEditPage'))
+const AdminWalletsPage = lazy(() => import('../pages/admin/wallets/AdminWalletsPage'))
+const AdminWalletDetailsPage = lazy(() => import('../pages/admin/wallets/AdminWalletDetailsPage'))
+const AdminTransactionsPage = lazy(() => import('../pages/admin/transactions/AdminTransactionsPage'))
+const AdminTransactionDetailsPage = lazy(() => import('../pages/admin/transactions/AdminTransactionDetailsPage'))
+const AdminReferralsPage = lazy(() => import('../pages/admin/referrals/AdminReferralsPage'))
+const AdminReferralDetailsPage = lazy(() => import('../pages/admin/referrals/AdminReferralDetailsPage'))
+const AdminPointAccountsPage = lazy(() => import('../pages/admin/rewards/AdminPointAccountsPage'))
+const AdminPointAccountDetailsPage = lazy(() => import('../pages/admin/rewards/AdminPointAccountDetailsPage'))
+const AdminPointTransactionsPage = lazy(() => import('../pages/admin/rewards/AdminPointTransactionsPage'))
+const AdminPointTransactionDetailsPage = lazy(() => import('../pages/admin/rewards/AdminPointTransactionDetailsPage'))
+const AdminLeaderboardPage = lazy(() => import('../pages/admin/rewards/AdminLeaderboardPage'))
+const AdminAwardsPage = lazy(() => import('../pages/admin/rewards/AdminAwardsPage'))
+const AdminAwardDetailsPage = lazy(() => import('../pages/admin/rewards/AdminAwardDetailsPage'))
+const AdminAwardCreatePage = lazy(() => import('../pages/admin/rewards/AdminAwardCreatePage'))
+const AdminAwardEditPage = lazy(() => import('../pages/admin/rewards/AdminAwardEditPage'))
+const AdminUserAwardsPage = lazy(() => import('../pages/admin/rewards/AdminUserAwardsPage'))
+const AdminUserAwardDetailsPage = lazy(() => import('../pages/admin/rewards/AdminUserAwardDetailsPage'))
+const AdminAdvertisersPage = lazy(() => import('../pages/admin/advertising/AdminAdvertisersPage'))
+const AdminAdvertiserCreatePage = lazy(() => import('../pages/admin/advertising/AdminAdvertiserCreatePage'))
+const AdminAdvertiserDetailsPage = lazy(() => import('../pages/admin/advertising/AdminAdvertiserDetailsPage'))
+const AdminAdvertiserEditPage = lazy(() => import('../pages/admin/advertising/AdminAdvertiserEditPage'))
+const AdminCampaignsPage = lazy(() => import('../pages/admin/advertising/AdminCampaignsPage'))
+const AdminCampaignCreatePage = lazy(() => import('../pages/admin/advertising/AdminCampaignCreatePage'))
+const AdminCampaignDetailsPage = lazy(() => import('../pages/admin/advertising/AdminCampaignDetailsPage'))
+const AdminCampaignEditPage = lazy(() => import('../pages/admin/advertising/AdminCampaignEditPage'))
+const AdminAdvertisingRevenuePage = lazy(() => import('../pages/admin/advertising/AdminAdvertisingRevenuePage'))
+const AdminAdvertisingRevenueCreatePage = lazy(() => import('../pages/admin/advertising/AdminAdvertisingRevenueCreatePage'))
+const AdminAdvertisingRevenueDetailsPage = lazy(() => import('../pages/admin/advertising/AdminAdvertisingRevenueDetailsPage'))
+const AdminCommunityPoolsPage = lazy(() => import('../pages/admin/community/AdminCommunityPoolsPage'))
+const AdminCommunityPoolDetailsPage = lazy(() => import('../pages/admin/community/AdminCommunityPoolDetailsPage'))
+const AdminCommunityPoolCreatePage = lazy(() => import('../pages/admin/community/AdminCommunityPoolCreatePage'))
+const AdminSupportTicketsPage = lazy(() => import('../pages/admin/support/AdminSupportTicketsPage'))
+const AdminSupportTicketDetailsPage = lazy(() => import('../pages/admin/support/AdminSupportTicketDetailsPage'))
+const AdminResourcesPage = lazy(() => import('../pages/admin/resources/AdminResourcesPage'))
+const AdminResourceDetailsPage = lazy(() => import('../pages/admin/resources/AdminResourceDetailsPage'))
+const AdminResourceCreatePage = lazy(() => import('../pages/admin/resources/AdminResourceCreatePage'))
+const AdminResourceEditPage = lazy(() => import('../pages/admin/resources/AdminResourceEditPage'))
+const AdminPartnersPage = lazy(() => import('../pages/admin/partners/AdminPartnersPage'))
+const AdminPartnerDetailsPage = lazy(() => import('../pages/admin/partners/AdminPartnerDetailsPage'))
+const AdminPartnerCreatePage = lazy(() => import('../pages/admin/partners/AdminPartnerCreatePage'))
+const AdminPartnerEditPage = lazy(() => import('../pages/admin/partners/AdminPartnerEditPage'))
+const AdminNotificationsPage = lazy(() => import('../pages/admin/notifications/AdminNotificationsPage'))
+const AdminNotificationDetailsPage = lazy(() => import('../pages/admin/notifications/AdminNotificationDetailsPage'))
+const AdminNotificationSendPage = lazy(() => import('../pages/admin/notifications/AdminNotificationSendPage'))
+const AdminAuditLogsPage = lazy(() => import('../pages/admin/audit/AdminAuditLogsPage'))
+const AdminAuditLogDetailsPage = lazy(() => import('../pages/admin/audit/AdminAuditLogDetailsPage'))
 
 function HomePage() {
   return <LandingPage />
@@ -167,7 +170,7 @@ function AdminRoute({
     return <Navigate to="/dashboard" replace />
   }
 
-  return children
+  return <Suspense fallback={<PageLoader />}>{children}</Suspense>
 }
 
 
