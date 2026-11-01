@@ -14,7 +14,7 @@ import { useAuth } from '../../context/AuthContext'
 import { updateProfile } from '../../services/authService'
 
 export default function ProfilePage() {
-  const { user, accessToken } = useAuth()
+  const { user, accessToken, refreshUser } = useAuth()
 
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -91,6 +91,7 @@ export default function ProfilePage() {
         accessToken,
       )
 
+      await refreshUser()
       setSuccess('Profile updated successfully.')
       setIsEditing(false)
     } catch (err) {

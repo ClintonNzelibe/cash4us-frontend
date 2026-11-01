@@ -264,6 +264,7 @@ export async function createAdminAdvertisingRevenue(
       body: JSON.stringify({
         ...data,
         campaign: data.campaign || null,
+        received_at: data.received_at || undefined,
       }),
     },
   )

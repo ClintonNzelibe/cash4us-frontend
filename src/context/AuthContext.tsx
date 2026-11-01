@@ -25,6 +25,7 @@ interface AuthContextValue {
   isLoading: boolean
   isAuthenticated: boolean
   login: (credentials: LoginRequest) => Promise<User>
+  refreshUser: () => Promise<void>
   logout: () => void
 }
 
@@ -76,6 +77,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return currentUser
   }
 
+  async function refreshUser(): Promise<void> {
+    const token = getAccessToken()
+    if (!token) throw new Error('Your session has expired. Please log in again.')
+    const currentUser = await getCurrentUser(token)
+    setUser(currentUser)
+    setAccessToken(getAccessToken())
+  }
+
   function logout() {
     clearTokens()
     setAccessToken(null)
@@ -90,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         isAuthenticated: Boolean(user && accessToken),
         login,
+        refreshUser,
         logout,
       }}
     >

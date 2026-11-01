@@ -8,6 +8,7 @@ import {
   Users,
 } from 'lucide-react'
 
+import { useAuth } from '../../../context/AuthContext'
 import { getAdminReferral } from '../../../services/adminReferralService'
 import type { AdminReferral } from '../../../types/admin/referrals'
 
@@ -15,7 +16,7 @@ import ReferralStatusBadge from './components/ReferralStatusBadge'
 
 export default function AdminReferralDetailsPage() {
   const { id } = useParams<{ id: string }>()
-  const accessToken = localStorage.getItem('accessToken')
+  const { accessToken } = useAuth()
 
   const [referral, setReferral] =
     useState<AdminReferral | null>(null)
