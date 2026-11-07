@@ -19,7 +19,7 @@ export default function CommunityPoolActionModal({
 }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
+      <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-md rounded-xl bg-white shadow-xl">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-slate-900">
             {title}
@@ -30,7 +30,7 @@ export default function CommunityPoolActionModal({
           </p>
         </div>
 
-        <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-4">
+        <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 px-6 py-4">
           <button
             type="button"
             onClick={onCancel}

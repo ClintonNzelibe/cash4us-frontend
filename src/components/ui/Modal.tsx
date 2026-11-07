@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useId } from 'react'
 import { X } from 'lucide-react'
 
 interface ModalProps {
@@ -23,6 +23,7 @@ export default function Modal({
   children,
   size = 'md',
 }: ModalProps) {
+  const titleId = useId()
   useEffect(() => {
     if (!isOpen) return
 
@@ -51,18 +52,21 @@ export default function Modal({
       }}
     >
       <div
-        className={`w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        className={`flex min-w-0 w-full ${sizeClasses[size]} max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl`}
       >
         {title && (
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <h2 className="text-lg font-semibold text-slate-900">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5">
+            <h2 id={titleId} className="min-w-0 break-words text-lg font-semibold text-slate-900">
               {title}
             </h2>
 
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              className="shrink-0 rounded-lg p-3 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
               aria-label="Close modal"
             >
               <X size={18} />
@@ -70,7 +74,7 @@ export default function Modal({
           </div>
         )}
 
-        <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-5">
+        <div className="min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-5">
           {children}
         </div>
       </div>

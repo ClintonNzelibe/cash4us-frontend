@@ -16,8 +16,10 @@ import {
   Headphones,
   Landmark,
   HandCoins,
+  X,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { useMobileDrawer } from '../../utils/useMobileDrawer'
 
 interface AdminSidebarProps {
   isOpen: boolean
@@ -48,6 +50,7 @@ export default function AdminSidebar({
   isOpen,
   onClose,
 }: AdminSidebarProps) {
+  const drawer = useMobileDrawer(isOpen, onClose)
   return (
     <>
       {isOpen && (
@@ -60,11 +63,13 @@ export default function AdminSidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0 ${
+        ref={drawer}
+        aria-label="Admin navigation"
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[calc(100vw-2rem)] flex-col border-r border-slate-200 bg-white transition-transform duration-300 motion-reduce:transition-none lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-20 items-center justify-between border-b border-slate-200 px-6">
+        <div className="flex h-20 shrink-0 items-center justify-between border-b border-slate-200 px-4 sm:px-6">
           <NavLink
             to="/admin"
             onClick={onClose}
@@ -84,9 +89,10 @@ export default function AdminSidebar({
               </p>
             </div>
           </NavLink>
+          <button type="button" onClick={onClose} aria-label="Close admin drawer" className="rounded-lg p-3 text-slate-600 hover:bg-slate-100 lg:hidden"><X size={20} /></button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5">
           <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             Administration
           </p>
@@ -120,6 +126,7 @@ export default function AdminSidebar({
         <div className="border-t border-slate-200 p-4">
           <NavLink
             to="/dashboard"
+            onClick={onClose}
             className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-[#0F766E]"
           >
             <ChevronLeft size={18} />

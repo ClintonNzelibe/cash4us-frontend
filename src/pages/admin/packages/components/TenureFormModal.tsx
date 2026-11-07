@@ -108,7 +108,7 @@ export default function TenureFormModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="w-full max-w-lg overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+      <div role="dialog" aria-modal="true" aria-label={mode === 'create' ? 'Add Tenure' : 'Edit Tenure'} className="max-h-[95dvh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
           <div>
             <h2 className="text-lg font-bold text-slate-900">
@@ -127,6 +127,7 @@ export default function TenureFormModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
+            aria-label="Close tenure modal"
             className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
           >
             <X size={20} />

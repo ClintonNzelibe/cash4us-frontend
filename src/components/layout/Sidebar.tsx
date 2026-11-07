@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
+import { useMobileDrawer } from '../../utils/useMobileDrawer'
 
 interface SidebarProps {
   isOpen?: boolean
@@ -91,14 +92,17 @@ export default function Sidebar({
   onClose,
 }: SidebarProps) {
   const { logout } = useAuth()
+  const drawer = useMobileDrawer(isOpen, onClose)
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#071521] text-white transition-transform duration-300 lg:static lg:translate-x-0 ${
+      ref={drawer}
+      aria-label="Member navigation"
+      className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[calc(100vw-2rem)] shrink-0 flex-col bg-[#071521] text-white transition-transform duration-300 motion-reduce:transition-none lg:static lg:translate-x-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex h-20 items-center justify-between border-b border-white/10 px-6">
+      <div className="flex h-20 shrink-0 items-center justify-between border-b border-white/10 px-6">
         <div>
           <h1 className="text-xl font-bold">
             Cash<span className="text-[#22C55E]">4</span>Us
@@ -119,7 +123,7 @@ export default function Sidebar({
         </button>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-5">
         {navigation.map((item) => {
           const Icon = item.icon
 

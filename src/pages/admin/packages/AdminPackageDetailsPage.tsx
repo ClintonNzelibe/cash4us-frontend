@@ -499,6 +499,7 @@ export default function AdminPackageDetailsPage() {
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
+                  aria-label="Edit package"
                   className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
                   onClick={() =>
                     setIsPackageModalOpen(true)

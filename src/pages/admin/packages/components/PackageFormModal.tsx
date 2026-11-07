@@ -230,9 +230,9 @@ export default function PackageFormModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+      <div role="dialog" aria-modal="true" aria-label={mode === 'create' ? 'Create Package' : 'Edit Package'} className="flex max-h-[95dvh] min-w-0 w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:px-6">
           <div>
             <h2 className="text-lg font-bold text-slate-900">
               {mode === 'create'
@@ -261,7 +261,7 @@ export default function PackageFormModal({
         {/* Body */}
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
         >
           <div className="space-y-5 p-5 sm:p-6">
             {(validationError || error) && (

@@ -374,7 +374,7 @@ export default function SupportPage() {
       {/* Create Ticket Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+          <div role="dialog" aria-modal="true" aria-label="Create Support Ticket" className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-lg rounded-2xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
               <div>
                 <h3 className="font-semibold text-slate-900">
@@ -457,7 +457,7 @@ export default function SupportPage() {
       {/* Ticket Details Modal */}
       {selectedTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+          <div role="dialog" aria-modal="true" aria-label="Support ticket details" className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-lg rounded-2xl bg-white shadow-xl">
             <div className="flex items-start justify-between border-b border-slate-100 px-5 py-4">
               <div className="min-w-0 pr-4">
                 <div className="flex flex-wrap items-center gap-2">

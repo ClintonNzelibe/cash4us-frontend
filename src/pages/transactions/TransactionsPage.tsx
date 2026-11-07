@@ -502,7 +502,7 @@ export default function TransactionsPage() {
           <div
             role="dialog"
             aria-modal="true"
-            className="w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl"
+            className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl"
           >
             <div className="flex items-start justify-between">
               <div>

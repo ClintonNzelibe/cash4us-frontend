@@ -22,9 +22,9 @@ export default function AdminLayout() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <div className="lg:pl-72">
+      <div className="min-w-0 lg:pl-72">
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
@@ -34,17 +34,17 @@ export default function AdminLayout() {
               <Menu size={20} />
             </button>
 
-            <div>
+            <div className="min-w-0">
               <p className="text-xs font-medium uppercase tracking-wide text-[#0F766E]">
                 Cash4Us
               </p>
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="truncate text-base font-bold text-slate-900 sm:text-lg">
                 Administration
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <div className="hidden items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 sm:flex">
               <ShieldCheck
                 size={17}
@@ -55,7 +55,7 @@ export default function AdminLayout() {
               </span>
             </div>
 
-            <div className="hidden text-right md:block">
+            <div className="hidden max-w-48 truncate text-right md:block">
               <p className="text-sm font-semibold text-slate-900">
                 {displayName}
               </p>
@@ -74,7 +74,7 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="min-w-0 p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>
