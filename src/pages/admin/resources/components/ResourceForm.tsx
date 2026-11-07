@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 
 import type {
@@ -36,14 +37,14 @@ export default function ResourceForm({
 
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (initialData) {
       setFormData({
         ...defaultData,
         ...initialData,
       })
     }
-  }, [initialData])
+  }), [initialData])
 
   const updateField = <
     K extends keyof ResourceFormData,

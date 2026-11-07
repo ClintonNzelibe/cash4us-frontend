@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import {
   createAdminResource,
 } from '../../../services/adminResourceService'
@@ -47,7 +47,7 @@ export default function AdminResourceCreatePage() {
           : 'Failed to create resource.'
 
       setError(message)
-      throw new Error(message)
+      throw new Error(message, { cause: err })
     } finally {
       setLoading(false)
     }

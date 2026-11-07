@@ -6,9 +6,10 @@ import { readFileSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
 export const API = 'http://127.0.0.1:8010/api'
-type Fixture = { key: string; password: string; admin: {id:string;email:string}; member: {id:string;email:string}; other: {id:string;email:string}; package: string; tenure: string; payment: string; ticket: string; withdrawal:string;wallet:string;transaction:string;points:string;point_transaction:string;resource:string;partner:string;task:string;submission:string }
+type FixtureActor = {id:string;email:string;access:string;refresh:string}
+type Fixture = { referral:string; key: string; password: string; admin: FixtureActor; member: FixtureActor; other: FixtureActor; package: string; tenure: string; payment: string; ticket: string; withdrawal:string;wallet:string;transaction:string;points:string;point_transaction:string;resource:string;partner:string;task:string;submission:string }
 export const test = base.extend<{ data: Fixture; qaEvidence: void }>({
-  qaEvidence: [async ({page}, use, info) => {
+  qaEvidence: [async ({page}, provide, info) => {
     const responses: {method:string;url:string;status:number}[] = []
     const errors: string[] = []
     const dialogs: string[] = []
@@ -22,25 +23,26 @@ export const test = base.extend<{ data: Fixture; qaEvidence: void }>({
     page.on('response', r => { if (r.url().includes('/api/')) responses.push({method:r.request().method(),url:r.url(),status:r.status()}) })
     page.on('pageerror', e => errors.push(e.message))
     page.on('dialog', async d => { dialogs.push(d.type()+': '+d.message()); await d.accept() })
-    await use()
+    await provide()
     clearInterval(heartbeat)
     await info.attach('API and runtime evidence', {body:JSON.stringify({responses,errors,dialogs,interruptions},null,2),contentType:'application/json'})
     expect(interruptions,'Environment paused during the workflow').toEqual([])
     expect(errors).toEqual([])
     expect(responses.filter(r=>r.status>=500)).toEqual([])
   }, {auto:true}],
-  data: async ({}, use) => {
+  data: async ({browserName}, provide) => {
+    void browserName
     const key = randomUUID().slice(0, 8)
     const backend=path.resolve('../cash4us-django')
     const started=Date.now()
     await execute(path.join(backend,'venv/Scripts/python.exe'), ['manage.py','seed_fullqa','--confirm-isolated','--key',key,'--settings=config.settings.fullqa'], {cwd:backend,timeout:45_000,windowsHide:true})
     if(Date.now()-started>45_000) throw new Error('Fixture preparation exceeded its wall-clock limit; possible environment interruption.')
     const data = JSON.parse(readFileSync(path.resolve(`../qa-artifacts/fixture-${key}.json`), 'utf8'))
-    await use(data)
+    await provide(data)
   },
 })
 export async function login(page:Page, data:Fixture, role:'admin'|'member'='admin') {
-  await page.addInitScript((auth:any)=>{
+  await page.addInitScript((auth:FixtureActor)=>{
     localStorage.setItem('cash4us_access_token',auth.access)
     localStorage.setItem('cash4us_refresh_token',auth.refresh)
   },data[role])

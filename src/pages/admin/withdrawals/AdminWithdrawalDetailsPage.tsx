@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -6,7 +7,7 @@ import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   approveAdminWithdrawal,
@@ -99,9 +100,9 @@ export default function AdminWithdrawalDetailsPage() {
     [accessToken, id],
   )
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadWithdrawal()
-  }, [loadWithdrawal])
+  }), [loadWithdrawal])
 
   async function handleAction(
     remarks: string,

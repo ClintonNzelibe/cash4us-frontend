@@ -1,4 +1,4 @@
-import {test,expect,login,api,field} from './fixtures'
+import {test,expect,login,api} from './fixtures'
 
 test('admin member search, detail, deactivate and reactivate persist',async({page,data})=>{
   await login(page,data)
@@ -30,7 +30,7 @@ test('admin package creation, validation, editing and tenure creation',async({pa
   const list=await api(page,`/admin/packages/?search=Created QA ${data.key}`)
   expect(list.status).toBe(200)
   const rows=list.body.results??list.body
-  const item=rows.find((x:any)=>x.name===`Created QA ${data.key}`)
+  const item=rows.find((x:Record<string, unknown>)=>x.name===`Created QA ${data.key}`)
   expect(item).toBeTruthy()
   await page.goto(`/admin/packages/${item.id}`)
   await page.getByRole('button',{name:'Edit',exact:true}).first().click()
@@ -44,7 +44,7 @@ test('admin package creation, validation, editing and tenure creation',async({pa
   await page.getByRole('button',{name:/Add Tenure/}).last().click()
   await page.reload()
   const detail=await api(page,`/admin/packages/${item.id}/`)
-  expect(detail.body.tenures.some((t:any)=>t.duration_days===30)).toBe(true)
+  expect(detail.body.tenures.some((t:Record<string, unknown>)=>t.duration_days===30)).toBe(true)
 })
 
 test('admin payment rejection persists and cancel modal preserves pending',async({page,data})=>{
@@ -85,7 +85,7 @@ test('admin partner create and edit persist',async({page,data})=>{
   await page.reload()
   await expect(page.getByText(`Partner QA ${data.key}`,{exact:true}).first()).toBeVisible()
   const list=await api(page,`/admin/partners/?search=Partner QA ${data.key}`)
-  const item=(list.body.results??list.body).find((x:any)=>x.name===`Partner QA ${data.key}`)
+  const item=(list.body.results??list.body).find((x:Record<string, unknown>)=>x.name===`Partner QA ${data.key}`)
   await page.goto(`/admin/partners/${item.id}/edit`)
   await page.getByPlaceholder('Enter partner name').fill(`Edited Partner ${data.key}`)
   await page.locator('button[type=submit]').click()

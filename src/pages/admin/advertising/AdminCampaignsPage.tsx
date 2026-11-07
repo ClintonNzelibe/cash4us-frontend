@@ -1,10 +1,12 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminCampaigns } from '../../../services/adminAdvertisingService'
 
@@ -25,7 +27,7 @@ export default function AdminCampaignsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadCampaigns = async () => {
+  const loadCampaigns = useCallback(async () => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -54,11 +56,11 @@ export default function AdminCampaignsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadCampaigns()
   }, [accessToken, filters])
+
+  useEffect(() => scheduleEffect(() => {
+    loadCampaigns()
+  }), [loadCampaigns])
 
   if (loading) {
     return <PageLoader />

@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminAward,
@@ -30,7 +31,7 @@ export default function AdminAwardEditPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !id) {
       setLoading(false)
       return
@@ -58,7 +59,7 @@ export default function AdminAwardEditPage() {
     }
 
     load()
-  }, [accessToken, id])
+  }), [accessToken, id])
 
   async function submit(data: AwardFormData) {
     if (!accessToken || !id) return

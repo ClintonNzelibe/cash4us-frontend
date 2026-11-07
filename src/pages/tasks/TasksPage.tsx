@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import {
   CheckCircle2,
   Clock3,
@@ -16,7 +18,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import {
   getDailyTasks,
   getTaskStatistics,
@@ -764,7 +766,7 @@ export default function TasksPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!accessToken) return
 
     try {
@@ -793,11 +795,11 @@ export default function TasksPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  useEffect(() => {
-    void loadData()
   }, [accessToken])
+
+  useEffect(() => scheduleEffect(() => {
+    void loadData()
+  }), [loadData])
 
   const submittedTaskIds = useMemo(
     () =>

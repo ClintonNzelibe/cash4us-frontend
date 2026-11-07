@@ -6,7 +6,7 @@ import {
   Search,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { API_ORIGIN } from '../../api/client'
 import { getPartners } from '../../services/partnerService'
 import type { Partner } from '../../types/partner'

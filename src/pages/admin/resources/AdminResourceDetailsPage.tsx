@@ -1,9 +1,11 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminResource,
@@ -32,7 +34,7 @@ export default function AdminResourceDetailsPage() {
   const [showStatusModal, setShowStatusModal] =
     useState(false)
 
-  const loadResource = async () => {
+  const loadResource = useCallback(async () => {
     if (!accessToken || !id) {
       setLoading(false)
       return
@@ -58,11 +60,11 @@ export default function AdminResourceDetailsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadResource()
   }, [accessToken, id])
+
+  useEffect(() => scheduleEffect(() => {
+    loadResource()
+  }), [loadResource])
 
   const handleStatusChange = async () => {
     if (!accessToken || !id || !resource) {

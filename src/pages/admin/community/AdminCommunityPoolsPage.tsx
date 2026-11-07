@@ -1,10 +1,12 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminCommunityPools } from '../../../services/adminCommunityService'
 
@@ -23,7 +25,7 @@ export default function AdminCommunityPoolsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadPools = async () => {
+  const loadPools = useCallback(async () => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -52,11 +54,11 @@ export default function AdminCommunityPoolsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadPools()
   }, [accessToken])
+
+  useEffect(() => scheduleEffect(() => {
+    loadPools()
+  }), [loadPools])
 
   if (loading) {
     return <PageLoader />

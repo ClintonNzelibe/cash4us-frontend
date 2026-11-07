@@ -1,8 +1,9 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import {
   getAdminPartner,
   updateAdminPartner,
@@ -48,9 +49,9 @@ export default function AdminPartnerEditPage() {
     }
   }, [accessToken, id])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     void loadPartner()
-  }, [loadPartner])
+  }), [loadPartner])
 
   async function handleSubmit(data: PartnerFormData) {
     if (!accessToken || !id) {

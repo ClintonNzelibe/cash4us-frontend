@@ -1,10 +1,12 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminAdvertisingRevenueDetails,
@@ -30,7 +32,7 @@ export default function AdminAdvertisingRevenueDetailsPage() {
   const [cancelRemarks, setCancelRemarks] = useState('')
   const [showCancel, setShowCancel] = useState(false)
 
-  const loadRevenue = async () => {
+  const loadRevenue = useCallback(async () => {
     if (!id || !accessToken) {
       setLoading(false)
       return
@@ -55,11 +57,11 @@ export default function AdminAdvertisingRevenueDetailsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadRevenue()
   }, [id, accessToken])
+
+  useEffect(() => scheduleEffect(() => {
+    loadRevenue()
+  }), [loadRevenue])
 
   const handleConfirm = async () => {
     if (!id || !accessToken || !revenue) return

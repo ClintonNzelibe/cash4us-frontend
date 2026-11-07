@@ -1,10 +1,12 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   allocateCommunityRevenue,
@@ -64,7 +66,7 @@ export default function AdminCommunityPoolDetailsPage() {
     'CLOSE' | 'DISTRIBUTE' | null
   >(null)
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!id || !accessToken) {
       setLoading(false)
       return
@@ -135,11 +137,11 @@ export default function AdminCommunityPoolDetailsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadData()
   }, [id, accessToken])
+
+  useEffect(() => scheduleEffect(() => {
+    loadData()
+  }), [loadData])
 
   const handleAllocate = async () => {
     if (

@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminPointTransactions } from '../../../services/adminRewardService'
 
 import type {
@@ -27,7 +28,7 @@ export default function AdminPointTransactionsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -65,7 +66,7 @@ export default function AdminPointTransactionsPage() {
     }, 300)
 
     return () => window.clearTimeout(timer)
-  }, [accessToken, filters])
+  }), [accessToken, filters])
 
   return (
     <div className="space-y-6">

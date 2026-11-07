@@ -48,7 +48,7 @@ test('member cannot close or reply to support tickets through staff endpoints',a
     expect((await api(page,`/v1/support/${data.ticket}/${action}/`,'PATCH',{reply:'Synthetic forbidden reply'})).status).toBe(403)
   }
   const list=await api(page,'/v1/support/')
-  const own=(list.body.results??list.body).find((x:any)=>x.id===data.ticket)
+  const own=(list.body.results??list.body).find((x:Record<string, unknown>)=>x.id===data.ticket)
   expect(own.status).toBe('OPEN')
 })
 
@@ -78,7 +78,7 @@ test('notifications and support remain isolated between synthetic members',async
   const response=await api(page,'/v1/notifications/')
   const notices=response.body.results??response.body
   expect(notices.length).toBe(2)
-  const foreignHeaders={Authorization:`Bearer ${(data.other as any).access}`}
+  const foreignHeaders={Authorization:`Bearer ${data.other.access}`}
   const attempt=await page.request.patch(`http://127.0.0.1:8010/api/v1/notifications/${notices[0].id}/read/`,{headers:foreignHeaders})
   expect(attempt.status()).toBe(404)
   const otherList=await page.request.get('http://127.0.0.1:8010/api/v1/support/',{headers:foreignHeaders})
@@ -110,7 +110,7 @@ test('audit detail renders a newly persisted synthetic action',async({page,data}
   const created=await api(page,'/admin/community/create/','POST',{name:`Audit recovery ${data.key}`})
   expect(created.status).toBe(201)
   const logs=await api(page,`/admin/audit-logs/?search=${data.key}`)
-  const item=(logs.body.results??logs.body).find((x:any)=>x.resource_id===created.body.id)
+  const item=(logs.body.results??logs.body).find((x:Record<string, unknown>)=>x.resource_id===created.body.id)
   expect(item).toBeTruthy()
   await page.goto(`/admin/audit/${item.id}`)
   await expect(page.locator('main')).toContainText(`Audit recovery ${data.key}`)

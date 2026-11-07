@@ -6,7 +6,7 @@ import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminWithdrawals } from '../../../services/adminWithdrawalService'
 
 import type {

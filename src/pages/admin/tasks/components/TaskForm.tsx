@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 
 import Button from '../../../../components/ui/Button'
@@ -78,7 +79,7 @@ export default function TaskForm({
   const [flyer, setFlyer] = useState<File | null>(null)
   const [video, setVideo] = useState<File | null>(null)
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!initialData) {
       return
     }
@@ -110,7 +111,7 @@ export default function TaskForm({
     setDeadline(
       formatDateTimeForInput(initialData.deadline),
     )
-  }, [initialData])
+  }), [initialData])
 
   function togglePlatform(
     selectedPlatform: TaskPlatform,

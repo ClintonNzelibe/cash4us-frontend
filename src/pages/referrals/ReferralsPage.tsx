@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ArrowDownLeft,
@@ -14,7 +15,7 @@ import {
   X,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { PUBLIC_APP_URL } from '../../config/site'
 import { getReferrals } from '../../services/referralService'
 import type { Referral } from '../../types/referral'
@@ -118,9 +119,9 @@ export default function ReferralsPage() {
     [accessToken],
   )
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadReferrals()
-  }, [loadReferrals])
+  }), [loadReferrals])
 
   const paidReferrals = useMemo(
     () =>

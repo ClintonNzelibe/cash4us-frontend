@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 
@@ -42,7 +43,7 @@ export default function CampaignForm({
 
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     setForm({
       advertiser: initialData?.advertiser || '',
       title: initialData?.title || '',
@@ -52,7 +53,7 @@ export default function CampaignForm({
       start_date: initialData?.start_date || '',
       end_date: initialData?.end_date || '',
     })
-  }, [initialData])
+  }), [initialData])
 
   const updateField = <K extends keyof CampaignFormData>(
     field: K,

@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminCampaign } from '../../../services/adminAdvertisingService'
 
@@ -21,7 +22,7 @@ export default function AdminCampaignDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!id || !accessToken) {
       setLoading(false)
       return
@@ -46,7 +47,7 @@ export default function AdminCampaignDetailsPage() {
     }
 
     loadCampaign()
-  }, [id, accessToken])
+  }), [id, accessToken])
 
   if (loading) {
     return <PageLoader />

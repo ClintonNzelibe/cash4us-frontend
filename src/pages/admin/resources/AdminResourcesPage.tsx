@@ -1,9 +1,11 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminResources } from '../../../services/adminResourceService'
 
@@ -27,7 +29,7 @@ export default function AdminResourcesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadResources = async () => {
+  const loadResources = useCallback(async () => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -56,11 +58,11 @@ export default function AdminResourcesPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadResources()
   }, [accessToken, filters])
+
+  useEffect(() => scheduleEffect(() => {
+    loadResources()
+  }), [loadResources])
 
   if (loading) {
     return <PageLoader />

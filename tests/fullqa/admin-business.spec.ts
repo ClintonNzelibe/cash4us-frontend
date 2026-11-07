@@ -1,4 +1,4 @@
-import {test,expect,login,api,field} from './fixtures'
+import {test,expect,login,api} from './fixtures'
 
 test('campaign create, edit and status persist',async({page,data})=>{
   await login(page,data)
@@ -126,5 +126,5 @@ test('community revenue allocation, close and distribution persist',async({page,
   const detail=await api(page,`/admin/community/${id}/`)
   expect(detail.body.status).toBe('DISTRIBUTED')
   expect(detail.body.earnings_count).toBeGreaterThan(0)
-  expect(detail.body.earnings.every((x:any)=>x.status==='PAID')).toBe(true)
+  expect(detail.body.earnings.every((x:Record<string, unknown>)=>x.status==='PAID')).toBe(true)
 })

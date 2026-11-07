@@ -1,8 +1,9 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Pencil } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminPartner } from '../../../services/adminPartnerService'
 import type { AdminPartner } from '../../../types/admin/partners'
 
@@ -40,9 +41,9 @@ export default function AdminPartnerDetailsPage() {
     }
   }, [accessToken, id])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     void loadPartner()
-  }, [loadPartner])
+  }), [loadPartner])
 
   if (loading) {
     return (

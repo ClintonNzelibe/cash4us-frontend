@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import type {
   AdminPartner,
@@ -26,12 +27,12 @@ export default function PartnerForm({
   const [website, setWebsite] = useState(initialData?.website ?? '')
   const [logo, setLogo] = useState<File | null>(null)
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     setName(initialData?.name ?? '')
     setDescription(initialData?.description ?? '')
     setWebsite(initialData?.website ?? '')
     setLogo(null)
-  }, [initialData])
+  }), [initialData])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()

@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import {
   
   ArrowUpRight,
@@ -16,7 +17,7 @@ import Badge from '../../../components/ui/Badge'
 import PageLoader from '../../../components/ui/PageLoader'
 import Button from '../../../components/ui/Button'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminDashboard } from '../../../services/adminDashboardService'
 import type { AdminDashboardData } from '../../../types/admin/dashboard'
 
@@ -118,9 +119,9 @@ export default function AdminDashboardPage() {
     [accessToken],
   )
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadDashboard()
-  }, [loadDashboard])
+  }), [loadDashboard])
 
   if (loading) {
     return <PageLoader />

@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import {
   ArrowDownToLine,
@@ -11,7 +12,7 @@ import {
   Wallet as WalletIcon,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import {
   createWalletAddress,
   deleteWalletAddress,
@@ -101,9 +102,9 @@ export default function WalletPage() {
     [accessToken],
   )
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadWallet()
-  }, [loadWallet])
+  }), [loadWallet])
 
   async function handleAddAddress() {
     if (!accessToken) {

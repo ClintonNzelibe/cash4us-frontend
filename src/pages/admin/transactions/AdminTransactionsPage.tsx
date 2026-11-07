@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminTransactions } from '../../../services/adminTransactionService'
 
@@ -52,7 +53,7 @@ export default function AdminTransactionsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -92,7 +93,7 @@ export default function AdminTransactionsPage() {
     }, 300)
 
     return () => window.clearTimeout(timer)
-  }, [accessToken, filters])
+  }), [accessToken, filters])
 
   const stats = useMemo(() => {
     const list = Array.isArray(transactions)

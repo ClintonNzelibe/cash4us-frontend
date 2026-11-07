@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -21,7 +22,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { getDashboardData } from '../../services/dashboardService'
 import type { DashboardData } from '../../types/dashboard'
 import { formatCurrency } from '../../utils/formatCurrency'
@@ -56,9 +57,9 @@ export default function DashboardPage() {
     }
   }, [accessToken])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadDashboard()
-  }, [loadDashboard])
+  }), [loadDashboard])
 
   const referralTotal = useMemo(() => {
     if (!data) return 0

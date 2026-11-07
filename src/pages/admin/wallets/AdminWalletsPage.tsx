@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -5,7 +6,7 @@ import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 import Button from '../../../components/ui/Button'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminWallets } from '../../../services/adminWalletService'
 
@@ -33,7 +34,7 @@ export default function AdminWalletsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -72,7 +73,7 @@ export default function AdminWalletsPage() {
     }, 300)
 
     return () => window.clearTimeout(timer)
-  }, [accessToken, filters])
+  }), [accessToken, filters])
 
   const totalBalance = wallets.reduce(
     (sum, wallet) =>

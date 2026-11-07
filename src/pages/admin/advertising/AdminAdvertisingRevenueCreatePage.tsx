@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   createAdminAdvertisingRevenue,
@@ -27,7 +28,7 @@ export default function AdminAdvertisingRevenueCreatePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -59,7 +60,7 @@ export default function AdminAdvertisingRevenueCreatePage() {
     }
 
     loadCampaigns()
-  }, [accessToken])
+  }), [accessToken])
 
   const handleSubmit = async (data: RevenueFormData) => {
     if (!accessToken) return

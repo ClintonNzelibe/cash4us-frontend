@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -5,7 +7,7 @@ import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 import Button from '../../../components/ui/Button'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminAwards,
@@ -31,7 +33,7 @@ export default function AdminAwardsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  async function loadAwards() {
+  const loadAwards = useCallback(async () => {
     if (!accessToken) return
 
     try {
@@ -61,11 +63,11 @@ export default function AdminAwardsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadAwards()
   }, [accessToken, filters])
+
+  useEffect(() => scheduleEffect(() => {
+    loadAwards()
+  }), [loadAwards])
 
   async function toggleStatus(
     award: AdminAward,

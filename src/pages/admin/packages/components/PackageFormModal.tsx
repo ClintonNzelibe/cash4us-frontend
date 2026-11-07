@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 
@@ -96,12 +97,12 @@ export default function PackageFormModal({
   const [validationError, setValidationError] =
     useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (isOpen) {
       setForm(packageToForm(packageData))
       setValidationError('')
     }
-  }, [isOpen, packageData])
+  }), [isOpen, packageData])
 
   if (!isOpen) return null
 

@@ -1,9 +1,11 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminSupportTickets,
@@ -30,7 +32,7 @@ export default function AdminSupportTicketsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadTickets = async () => {
+  const loadTickets = useCallback(async () => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -60,11 +62,11 @@ export default function AdminSupportTicketsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadTickets()
   }, [accessToken, filters])
+
+  useEffect(() => scheduleEffect(() => {
+    loadTickets()
+  }), [loadTickets])
 
   if (loading) {
     return <PageLoader />

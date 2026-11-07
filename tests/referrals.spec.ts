@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test'
 
 const referralCode = 'CODE&42'
-const referralLink =
-  'https://cash4us-frontend.vercel.app/register?ref=CODE%2642'
+// Match the frontend's public URL explicitly when testing an isolated build.
+const publicAppUrl = process.env.E2E_PUBLIC_APP_URL || 'https://cash4us-frontend.vercel.app'
+const referralLink = `${publicAppUrl.replace(/\/$/, '')}/register?ref=${encodeURIComponent(referralCode)}`
 
 test.beforeEach(async ({ context, page }) => {
   await context.grantPermissions([

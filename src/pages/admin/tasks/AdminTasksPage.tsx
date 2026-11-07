@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -5,7 +6,7 @@ import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminTaskSubmissions,
@@ -87,7 +88,7 @@ export default function AdminTasksPage() {
   const [submissionError, setSubmissionError] =
     useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoadingTasks(false)
       return
@@ -137,9 +138,9 @@ export default function AdminTasksPage() {
     }, 300)
 
     return () => window.clearTimeout(timer)
-  }, [accessToken, taskFilters])
+  }), [accessToken, taskFilters])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoadingSubmissions(false)
       return
@@ -183,7 +184,7 @@ export default function AdminTasksPage() {
     }, 300)
 
     return () => window.clearTimeout(timer)
-  }, [accessToken, submissionFilters])
+  }), [accessToken, submissionFilters])
 
   const taskStats = useMemo(() => {
     const taskList = Array.isArray(tasks)

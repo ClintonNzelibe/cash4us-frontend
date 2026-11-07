@@ -1,4 +1,4 @@
-import { expect, test, type Browser, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 const referredEmail = process.env.E2E_REFERRED_EMAIL
 const referredPassword = process.env.E2E_REFERRED_PASSWORD

@@ -1,8 +1,9 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminAuditLog } from '../../../services/adminAuditService'
 import type { AdminAuditLog } from '../../../types/admin/audit'
 
@@ -44,9 +45,9 @@ export default function AdminAuditLogDetailsPage() {
     }
   }, [accessToken, id])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     void loadLog()
-  }, [loadLog])
+  }), [loadLog])
 
   if (loading) {
     return (

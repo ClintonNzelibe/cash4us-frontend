@@ -25,6 +25,9 @@ export interface PackageDetail extends Package {
 }
 
 export interface MemberCycle {
+  snapshot_status?: 'SNAPSHOTTED' | 'HISTORICAL_UNVERIFIED'
+  legacy_normal_tasks_available?: boolean
+  activation_source?: 'ADMIN_GRANT' | 'STANDARD'
   id: string
   package: string
   package_name?: string
@@ -34,6 +37,6 @@ export interface MemberCycle {
   required_referrals?: number
   started_at: string
   ends_at: string
-  status: 'ACTIVE' | 'COMPLETED' | 'EXPIRED'
+  status: 'ACTIVE' | 'COMPLETED' | 'EXPIRED' | 'RETIRED'
   total_bonus_earned: string | number
 }

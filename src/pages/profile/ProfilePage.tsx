@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import {
   CalendarDays,
@@ -10,7 +11,7 @@ import {
   X,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { updateProfile } from '../../services/authService'
 
 export default function ProfilePage() {
@@ -29,7 +30,7 @@ export default function ProfilePage() {
     username: '',
   })
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!user) return
 
     setForm({
@@ -37,7 +38,7 @@ export default function ProfilePage() {
       last_name: user.last_name,
       username: user.username,
     })
-  }, [user])
+  }), [user])
 
   if (!user) {
     return null

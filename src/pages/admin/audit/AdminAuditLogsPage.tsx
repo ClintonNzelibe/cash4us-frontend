@@ -1,8 +1,9 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RefreshCw } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminAuditLogs } from '../../../services/adminAuditService'
 import type {
   AdminAuditLog,
@@ -47,9 +48,9 @@ export default function AdminAuditLogsPage() {
     }
   }, [accessToken, filters])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     void loadLogs()
-  }, [loadLogs])
+  }), [loadLogs])
 
   return (
     <div className="space-y-6">

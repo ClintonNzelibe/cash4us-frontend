@@ -1,9 +1,11 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   closeAdminSupportTicket,
@@ -37,7 +39,7 @@ export default function AdminSupportTicketDetailsPage() {
   const [showCloseModal, setShowCloseModal] =
     useState(false)
 
-  const loadTicket = async () => {
+  const loadTicket = useCallback(async () => {
     if (!accessToken || !id) {
       setLoading(false)
       return
@@ -63,11 +65,11 @@ export default function AdminSupportTicketDetailsPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadTicket()
   }, [accessToken, id])
+
+  useEffect(() => scheduleEffect(() => {
+    loadTicket()
+  }), [loadTicket])
 
   const handleReply = async (reply: string) => {
     if (!accessToken || !id) {
@@ -93,7 +95,7 @@ export default function AdminSupportTicketDetailsPage() {
           : 'Failed to send reply.'
 
       setActionError(message)
-      throw new Error(message)
+      throw new Error(message, { cause: err })
     } finally {
       setActionLoading(false)
     }

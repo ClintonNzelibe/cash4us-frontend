@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminPointTransaction } from '../../../services/adminRewardService'
 
 import type { AdminPointTransaction } from '../../../types/admin/rewards'
@@ -21,7 +22,7 @@ export default function AdminPointTransactionDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !id) {
       setLoading(false)
       return
@@ -51,7 +52,7 @@ export default function AdminPointTransactionDetailsPage() {
     }
 
     load()
-  }, [accessToken, id])
+  }), [accessToken, id])
 
   if (loading) return <PageLoader />
 

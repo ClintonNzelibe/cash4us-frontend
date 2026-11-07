@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 
@@ -40,7 +41,7 @@ export default function RevenueForm({
 
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     setForm({
       source: initialData?.source || 'CAMPAIGN',
       campaign: initialData?.campaign || '',
@@ -49,7 +50,7 @@ export default function RevenueForm({
       remarks: initialData?.remarks || '',
       received_at: initialData?.received_at || '',
     })
-  }, [initialData])
+  }), [initialData])
 
   const updateField = <K extends keyof RevenueFormData>(
     field: K,

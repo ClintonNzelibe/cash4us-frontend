@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
@@ -8,7 +9,7 @@ import {
   Users,
 } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminReferral } from '../../../services/adminReferralService'
 import type { AdminReferral } from '../../../types/admin/referrals'
 
@@ -24,7 +25,7 @@ export default function AdminReferralDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !id) {
       setLoading(false)
       return
@@ -43,13 +44,9 @@ export default function AdminReferralDetailsPage() {
         )
 
         setReferral(response)
-      } catch (err: any) {
-        console.error('Failed to load referral:', err)
-
+      } catch (err: unknown) {
         setError(
-          err?.response?.data?.detail ||
-            err?.response?.data?.message ||
-            'Failed to load referral details.',
+          err instanceof Error ? err.message : 'Failed to load referral details.',
         )
       } finally {
         setLoading(false)
@@ -57,7 +54,7 @@ export default function AdminReferralDetailsPage() {
     }
 
     loadReferral()
-  }, [accessToken, id])
+  }), [accessToken, id])
 
   const formatAmount = (amount: string | number) => {
     return `₦${Number(amount || 0).toLocaleString('en-NG', {

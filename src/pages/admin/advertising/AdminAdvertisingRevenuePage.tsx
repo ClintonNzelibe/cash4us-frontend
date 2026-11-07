@@ -1,10 +1,12 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminAdvertisingRevenue,
@@ -31,7 +33,7 @@ export default function AdminAdvertisingRevenuePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadRevenue = async () => {
+  const loadRevenue = useCallback(async () => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -60,11 +62,11 @@ export default function AdminAdvertisingRevenuePage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadRevenue()
   }, [accessToken, filters])
+
+  useEffect(() => scheduleEffect(() => {
+    loadRevenue()
+  }), [loadRevenue])
 
   if (loading) {
     return <PageLoader />

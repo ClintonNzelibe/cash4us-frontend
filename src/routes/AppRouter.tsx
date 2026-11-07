@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react'
 import PageLoader from '../components/ui/PageLoader'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
 
 import AppLayout from '../components/layout/AppLayout'
 import AdminLayout from '../admin/layouts/AdminLayout'

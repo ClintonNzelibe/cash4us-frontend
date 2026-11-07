@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import {
   ArrowLeft,
   CalendarDays,
@@ -31,13 +32,14 @@ import Card from '../../../components/ui/Card'
 import EmptyState from '../../../components/ui/EmptyState'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import {
   getAdminMember,
   updateAdminMemberStatus,
 } from '../../../services/adminMemberService'
 
 import type { AdminMember } from '../../../types/admin/members'
+import PackageGrantPanel from './PackageGrantPanel'
 
 export default function AdminMemberDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -86,9 +88,9 @@ export default function AdminMemberDetailsPage() {
     [accessToken, id],
   )
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadMember()
-  }, [loadMember])
+  }), [loadMember])
 
   async function handleStatusChange() {
     if (!accessToken || !member || updating) {
@@ -248,6 +250,8 @@ export default function AdminMemberDetailsPage() {
           {error}
         </div>
       )}
+
+      {accessToken && <PackageGrantPanel key={member.id} memberId={member.id} memberEmail={member.email} token={accessToken} onGranted={() => void loadMember(true)} />}
 
       {/* Member hero */}
       <Card className="overflow-hidden">

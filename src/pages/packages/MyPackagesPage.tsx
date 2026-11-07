@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import {
   AlertTriangle,
   ArrowRight,
@@ -12,7 +13,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { getMyPackages } from '../../services/packageService'
 import {
   getRecommitmentEligibility,
@@ -94,7 +95,7 @@ export default function MyPackagesPage() {
     [cycles],
   )
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !activeCycle) {
       setQualification(null)
       setPromotionalQualification(null)
@@ -115,7 +116,8 @@ export default function MyPackagesPage() {
         await Promise.allSettled([
           getCycleQualification(token),
           getPromotionalQualification(token),
-          getPromotionalSettlementPreview(token),
+          activeCycle?.snapshot_status === 'HISTORICAL_UNVERIFIED'
+            ? Promise.resolve(null) : getPromotionalSettlementPreview(token),
         ])
 
       if (!isCurrent) return
@@ -148,7 +150,7 @@ export default function MyPackagesPage() {
     return () => {
       isCurrent = false
     }
-  }, [accessToken, activeCycle?.id])
+  }), [accessToken, activeCycle])
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-8 pb-10">
@@ -201,6 +203,8 @@ export default function MyPackagesPage() {
                   <h2 className="mt-1 text-2xl font-bold text-slate-900">
                     {activeCycle.package_name || 'Active package'}
                   </h2>
+                  {activeCycle.activation_source === 'ADMIN_GRANT' && <p className="mt-2 text-xs font-bold text-teal-800">ADMIN_GRANT · Administrative activation</p>}
+                  {activeCycle.snapshot_status === 'HISTORICAL_UNVERIFIED' && <p className="mt-2 text-sm text-slate-600">Legacy membership: {activeCycle.legacy_normal_tasks_available ? 'normal daily tasks remain available under existing earnings rules.' : 'normal-task eligibility requires review.'} Promotional settlement requires verified historical terms. History is retained.</p>}
                   {activeCycle.package_price !== undefined && (
                     <p className="mt-1 text-sm text-slate-600">
                       Package value {formatCurrency(activeCycle.package_price)}
@@ -266,6 +270,7 @@ export default function MyPackagesPage() {
         </div>
       )}
 
+      {cycles.filter(cycle => cycle.status === 'RETIRED').map(cycle => <p key={cycle.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">RETIRED · Test grant: {cycle.package_name || 'Administrative package'}. Future earnings stopped; history retained.</p>)}
       <RecommitmentReadiness accessToken={accessToken} />
     </div>
   )
@@ -281,7 +286,7 @@ function RecommitmentReadiness({ accessToken }: { accessToken: string | null }) 
   const [quoteLoading, setQuoteLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -313,9 +318,9 @@ function RecommitmentReadiness({ accessToken }: { accessToken: string | null }) 
 
     void loadReadiness()
     return () => { isCurrent = false }
-  }, [accessToken])
+  }), [accessToken])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !selectedOption) {
       setQuote(null)
       return
@@ -344,7 +349,7 @@ function RecommitmentReadiness({ accessToken }: { accessToken: string | null }) 
 
     void loadQuote()
     return () => { isCurrent = false }
-  }, [accessToken, selectedOption])
+  }), [accessToken, selectedOption])
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
@@ -469,6 +474,11 @@ function QualificationPanel({
   isLoading: boolean
   error: string | null
 }) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
   const remainingReferrals = qualification
     ? Math.max(
       qualification.required_referrals - qualification.verified_qualifying_referrals,
@@ -482,7 +492,7 @@ function QualificationPanel({
     : 0
   const remainingDays = cycle.ends_at
     ? Math.max(
-      Math.ceil((new Date(cycle.ends_at).getTime() - Date.now()) / 86_400_000),
+      Math.ceil((new Date(cycle.ends_at).getTime() - now) / 86_400_000),
       0,
     )
     : null

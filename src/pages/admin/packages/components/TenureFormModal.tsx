@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 
@@ -45,7 +46,7 @@ export default function TenureFormModal({
   const [validationError, setValidationError] =
     useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!isOpen) return
 
     if (tenure) {
@@ -63,7 +64,7 @@ export default function TenureFormModal({
     }
 
     setValidationError('')
-  }, [isOpen, tenure])
+  }), [isOpen, tenure])
 
   if (!isOpen) return null
 

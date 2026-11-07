@@ -1,8 +1,9 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminNotification } from '../../../services/adminNotificationService'
 import type { AdminNotification } from '../../../types/admin/notifications'
 
@@ -43,9 +44,9 @@ export default function AdminNotificationDetailsPage() {
     }
   }, [accessToken, id])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     void loadNotification()
-  }, [loadNotification])
+  }), [loadNotification])
 
   if (loading) {
     return (

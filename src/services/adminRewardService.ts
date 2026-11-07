@@ -22,7 +22,8 @@ export async function getAdminPointAccounts(
 
   const query = params.toString()
 
-  return apiClient<any>(
+  return apiClient<{ results: AdminPointAccount[]; count: number } |
+      AdminPointAccount[]>(
     query
       ? `${ADMIN_ENDPOINTS.pointAccounts}?${query}`
       : ADMIN_ENDPOINTS.pointAccounts,
@@ -30,10 +31,7 @@ export async function getAdminPointAccounts(
       method: 'GET',
       token: accessToken,
     },
-  ) as Promise<
-    { results: AdminPointAccount[]; count: number } |
-      AdminPointAccount[]
-  >
+  )
 }
 
 export async function getAdminPointAccount(
@@ -68,7 +66,8 @@ export async function getAdminPointTransactions(
 
   const query = params.toString()
 
-  return apiClient<any>(
+  return apiClient<{ results: AdminPointTransaction[]; count: number } |
+      AdminPointTransaction[]>(
     query
       ? `${ADMIN_ENDPOINTS.pointTransactions}?${query}`
       : ADMIN_ENDPOINTS.pointTransactions,
@@ -76,10 +75,7 @@ export async function getAdminPointTransactions(
       method: 'GET',
       token: accessToken,
     },
-  ) as Promise<
-    { results: AdminPointTransaction[]; count: number } |
-      AdminPointTransaction[]
-  >
+  )
 }
 
 export async function getAdminPointTransaction(
@@ -99,13 +95,13 @@ export async function getAdminLeaderboard(
   accessToken: string,
   limit = 10,
 ) {
-  return apiClient<any>(
+  return apiClient<AdminPointAccount[] | { results: AdminPointAccount[] }>(
     `${ADMIN_ENDPOINTS.leaderboard}?limit=${limit}`,
     {
       method: 'GET',
       token: accessToken,
     },
-  ) as Promise<AdminPointAccount[] | { results: AdminPointAccount[] }>
+  )
 }
 
 export async function getAdminAwards(
@@ -128,7 +124,7 @@ export async function getAdminAwards(
 
   const query = params.toString()
 
-  return apiClient<any>(
+  return apiClient<{ results: AdminAward[]; count: number } | AdminAward[]>(
     query
       ? `${ADMIN_ENDPOINTS.awards}?${query}`
       : ADMIN_ENDPOINTS.awards,
@@ -136,9 +132,7 @@ export async function getAdminAwards(
       method: 'GET',
       token: accessToken,
     },
-  ) as Promise<
-    { results: AdminAward[]; count: number } | AdminAward[]
-  >
+  )
 }
 
 export async function getAdminAward(
@@ -238,7 +232,8 @@ export async function getAdminUserAwards(
 
   const query = params.toString()
 
-  return apiClient<any>(
+  return apiClient<{ results: AdminUserAward[]; count: number } |
+      AdminUserAward[]>(
     query
       ? `${ADMIN_ENDPOINTS.userAwards}?${query}`
       : ADMIN_ENDPOINTS.userAwards,
@@ -246,10 +241,7 @@ export async function getAdminUserAwards(
       method: 'GET',
       token: accessToken,
     },
-  ) as Promise<
-    { results: AdminUserAward[]; count: number } |
-      AdminUserAward[]
-  >
+  )
 }
 
 export async function getAdminUserAward(

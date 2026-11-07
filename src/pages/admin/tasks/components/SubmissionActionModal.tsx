@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 
 import Button from '../../../../components/ui/Button'
@@ -27,11 +28,11 @@ export default function SubmissionActionModal({
 }: SubmissionActionModalProps) {
   const [comment, setComment] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (open) {
       setComment('')
     }
-  }, [open])
+  }), [open])
 
   if (!action) {
     return null

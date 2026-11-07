@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import { useEffect, useMemo, useState } from 'react'
 import {
   CheckCircle2,
@@ -9,7 +11,7 @@ import {
   X,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import {
   createSupportTicket,
   getSupportTickets,
@@ -84,7 +86,7 @@ export default function SupportPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  async function loadTickets() {
+  const loadTickets = useCallback(async () => {
     if (!accessToken) return
 
     try {
@@ -102,11 +104,11 @@ export default function SupportPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  useEffect(() => {
-    loadTickets()
   }, [accessToken])
+
+  useEffect(() => scheduleEffect(() => {
+    loadTickets()
+  }), [loadTickets])
 
   const stats = useMemo(() => {
     const open = tickets.filter(

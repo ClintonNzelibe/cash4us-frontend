@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminAdvertiser,
@@ -28,7 +29,7 @@ export default function AdminAdvertiserEditPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!id || !accessToken) {
       setLoading(false)
       return
@@ -53,7 +54,7 @@ export default function AdminAdvertiserEditPage() {
     }
 
     loadAdvertiser()
-  }, [id, accessToken])
+  }), [id, accessToken])
 
   const handleSubmit = async (data: AdvertiserFormData) => {
     if (!id || !accessToken) return

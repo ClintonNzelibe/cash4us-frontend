@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
@@ -5,7 +6,7 @@ import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminTransaction } from '../../../services/adminTransactionService'
 
@@ -67,7 +68,7 @@ export default function AdminTransactionDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !id) {
       setLoading(false)
       return
@@ -101,7 +102,7 @@ export default function AdminTransactionDetailsPage() {
     }
 
     loadTransaction()
-  }, [accessToken, id])
+  }), [accessToken, id])
 
   if (loading) {
     return <PageLoader />

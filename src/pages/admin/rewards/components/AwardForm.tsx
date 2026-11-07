@@ -180,7 +180,7 @@ export default function AwardForm({
           <select
             value={awardPeriod}
             onChange={(event) =>
-              setAwardPeriod(event.target.value as any)
+              setAwardPeriod(event.target.value as AwardFormData['award_period'])
             }
             className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500"
           >
@@ -200,7 +200,7 @@ export default function AwardForm({
           <select
             value={status}
             onChange={(event) =>
-              setStatus(event.target.value as any)
+              setStatus(event.target.value as AwardFormData['status'])
             }
             className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500"
           >

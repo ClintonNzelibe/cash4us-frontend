@@ -20,7 +20,7 @@ import Card from '../../../components/ui/Card'
 import EmptyState from '../../../components/ui/EmptyState'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import {
   getAdminMembers,
   updateAdminMemberStatus,

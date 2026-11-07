@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import {
   Eye,
   Filter,
@@ -18,7 +19,7 @@ import Card from '../../../components/ui/Card'
 import EmptyState from '../../../components/ui/EmptyState'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminPackages,
@@ -95,7 +96,7 @@ export default function AdminPackagesPage() {
 
   const [error, setError] = useState('')
 
-  async function loadPackages(showLoader = true) {
+  const loadPackages = useCallback(async (showLoader = true) => {
     if (!accessToken) return
 
     if (showLoader) {
@@ -128,7 +129,7 @@ export default function AdminPackagesPage() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [accessToken, search, filter])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -136,7 +137,7 @@ export default function AdminPackagesPage() {
     }, 300)
 
     return () => window.clearTimeout(timer)
-  }, [accessToken, search, filter])
+  }, [loadPackages])
 
   const statistics = useMemo(() => {
     return {

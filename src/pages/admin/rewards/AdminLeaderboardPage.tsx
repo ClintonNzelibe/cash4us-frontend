@@ -1,9 +1,10 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminLeaderboard } from '../../../services/adminRewardService'
 
 import type { AdminPointAccount } from '../../../types/admin/rewards'
@@ -15,7 +16,7 @@ export default function AdminLeaderboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -52,7 +53,7 @@ export default function AdminLeaderboardPage() {
     }
 
     load()
-  }, [accessToken])
+  }), [accessToken])
 
   if (loading) {
     return <PageLoader />

@@ -1,10 +1,11 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminCampaign,
@@ -31,7 +32,7 @@ export default function AdminCampaignEditPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!id || !accessToken) {
       setLoading(false)
       return
@@ -67,7 +68,7 @@ export default function AdminCampaignEditPage() {
     }
 
     loadData()
-  }, [id, accessToken])
+  }), [id, accessToken])
 
   const handleSubmit = async (data: CampaignFormData) => {
     if (!id || !accessToken) return
@@ -78,8 +79,6 @@ export default function AdminCampaignEditPage() {
       await updateAdminCampaign(accessToken, id, data)
 
       navigate(`/admin/advertising/campaigns/${id}`)
-    } catch (err) {
-      throw err
     } finally {
       setSaving(false)
     }

@@ -12,7 +12,7 @@ import {
   WalletCards,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import {
   getPayment,
   getPayments,
@@ -52,7 +52,11 @@ function statusPresentation(payment: Payment, isExpired: boolean) {
   if (payment.status === 'APPROVED') {
     return {
       label: 'Approved',
-      message: 'Your payment has been verified and your package is active.',
+      message: payment.approved_by
+        ? 'Your payment was approved by an administrator. View My Packages for membership status.'
+        : payment.verified_at && payment.blockchain_tx_hash
+          ? 'Your blockchain payment has been verified. View My Packages for membership status.'
+          : 'Your payment has been approved. View My Packages for membership status.',
       styles: 'border-emerald-200 bg-emerald-50 text-emerald-800',
     }
   }
@@ -207,6 +211,7 @@ export default function PaymentPage() {
     [now, payment?.verification_expires_at],
   )
   const isExpired = remainingTime === 'Expired'
+  const canSendFunds = payment?.status === 'PENDING' && payment.instruction_state === 'OPEN' && !isExpired && Boolean(now)
   const status = payment && statusPresentation(payment, isExpired)
 
   const createPayment = async () => {
@@ -239,7 +244,7 @@ export default function PaymentPage() {
   }
 
   const copyDepositAddress = async () => {
-    if (!payment?.deposit_address) return
+    if (!payment?.deposit_address || !canSendFunds) return
 
     if (!navigator.clipboard) {
       setError('Unable to copy the deposit address. Please copy it manually.')
@@ -308,8 +313,9 @@ export default function PaymentPage() {
             Complete your BEP20 payment
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Send only the exact server-calculated USDT amount shown below.
-            Your package is activated only after Cash4Us verifies the transaction.
+            {payment && payment.status !== 'PENDING'
+              ? 'Review your payment record below. View My Packages for membership status.'
+              : 'Send only the exact server-calculated USDT amount shown below. Your package is activated only after Cash4Us verifies the transaction.'}
           </p>
         </div>
 
@@ -386,6 +392,8 @@ export default function PaymentPage() {
                 </div>
               </div>
 
+              {payment.status === 'PENDING' && !canSendFunds && <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">Do not send funds to these instructions. {isExpired || payment.instruction_state === 'EXPIRED_REVIEW_REQUIRED' ? 'The payment window has expired.' : 'Payment instructions require administrator review.'} The pending record is retained for manual review; no payment or package approval has occurred.</div>}
+              {canSendFunds && (
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0FDFA] text-[#0F766E]">
@@ -454,6 +462,7 @@ export default function PaymentPage() {
                   </p>
                 </div>
               </div>
+              )}
             </section>
 
             <aside>
@@ -491,7 +500,7 @@ export default function PaymentPage() {
                   </div>
                 </div>
 
-                {payment.verification_expires_at && (
+                {payment.status === 'PENDING' && payment.verification_expires_at && (
                   <div className="mt-5 rounded-xl bg-slate-50 p-4">
                     <p className="text-xs font-medium text-slate-500">Payment window</p>
                     <p className={`mt-1 text-lg font-bold ${isExpired ? 'text-rose-700' : 'text-[#0F172A]'}`}>
@@ -500,7 +509,7 @@ export default function PaymentPage() {
                   </div>
                 )}
 
-                {payment.blockchain_tx_hash && (
+                {payment.verified_at && payment.blockchain_tx_hash && (
                   <div className="mt-5 border-t border-slate-200 pt-4">
                     <p className="text-xs font-medium text-slate-500">Verified transaction</p>
                     <p className="mt-1 break-all text-xs font-semibold text-slate-700">

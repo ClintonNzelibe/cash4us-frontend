@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import {
   ArrowLeft,
   CalendarDays,
@@ -31,7 +33,7 @@ import Card from '../../../components/ui/Card'
 import EmptyState from '../../../components/ui/EmptyState'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   createAdminTenure,
@@ -189,7 +191,7 @@ export default function AdminPackageDetailsPage() {
   const [updatingPackageStatus, setUpdatingPackageStatus] =
     useState(false)
 
-  async function loadPackage(showLoader = true) {
+  const loadPackage = useCallback(async (showLoader = true) => {
     if (!accessToken || !id) return
 
     if (showLoader) {
@@ -217,17 +219,17 @@ export default function AdminPackageDetailsPage() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
-
-  useEffect(() => {
-    loadPackage()
   }, [accessToken, id])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
+    loadPackage()
+  }), [loadPackage])
+
+  useEffect(() => scheduleEffect(() => {
     if (packageData && isEditRoute) {
       setIsPackageModalOpen(true)
     }
-  }, [packageData, isEditRoute])
+  }), [packageData, isEditRoute])
 
   async function handlePackageStatus() {
     if (!packageData || !accessToken) return

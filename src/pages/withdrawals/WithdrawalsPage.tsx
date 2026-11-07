@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import {
   AlertCircle,
   CheckCircle2,
@@ -10,7 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { getWallet } from '../../services/walletService'
 import {
   createWithdrawal,
@@ -652,7 +654,7 @@ export default function WithdrawalsPage() {
   const [selectedWithdrawal, setSelectedWithdrawal] =
     useState<Withdrawal | null>(null)
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!accessToken) return
 
     try {
@@ -678,11 +680,11 @@ export default function WithdrawalsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  useEffect(() => {
-    void loadData()
   }, [accessToken])
+
+  useEffect(() => scheduleEffect(() => {
+    void loadData()
+  }), [loadData])
 
   const pendingCount = useMemo(
     () =>

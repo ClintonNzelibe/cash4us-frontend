@@ -1,7 +1,8 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import PageLoader from '../../../components/ui/PageLoader'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminResource, updateAdminResource } from '../../../services/adminResourceService'
 import type { AdminResource, ResourceFormData } from '../../../types/admin/resources'
 import ResourceForm from './components/ResourceForm'
@@ -15,7 +16,7 @@ export default function AdminResourceEditPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !id) return
     let active = true
     setLoading(true)
@@ -24,7 +25,7 @@ export default function AdminResourceEditPage() {
       .catch(err => { if (active) setError(err instanceof Error ? err.message : 'Unable to load resource.') })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
-  }, [accessToken, id])
+  }), [accessToken, id])
 
   const initialData = useMemo<Partial<ResourceFormData> | undefined>(() => resource ? {
     title: resource.title,

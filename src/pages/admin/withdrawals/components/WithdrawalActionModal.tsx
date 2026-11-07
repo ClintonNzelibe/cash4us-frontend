@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 
 import Button from '../../../../components/ui/Button'
@@ -36,11 +37,11 @@ export default function WithdrawalActionModal({
 }: WithdrawalActionModalProps) {
   const [remarks, setRemarks] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (open) {
       setRemarks('')
     }
-  }, [open])
+  }), [open])
 
   if (!action) return null
 

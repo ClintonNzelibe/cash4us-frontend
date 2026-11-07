@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import {
   ArrowLeft,
@@ -12,7 +13,7 @@ import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import PageLoader from '../../../components/ui/PageLoader'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import {
   approveAdminPayment,
   getAdminPayment,
@@ -108,9 +109,9 @@ export default function AdminPaymentDetailsPage() {
     }
   }, [accessToken, id])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadPayment()
-  }, [loadPayment])
+  }), [loadPayment])
 
   const handleAction = async (remarks: string) => {
     if (!accessToken || !payment || !action) return

@@ -1,10 +1,11 @@
+import type { Page } from '@playwright/test'
 import {test,expect,api} from '../fullqa/fixtures'
 const adminEmail=process.env.E2E_LEGACY_ADMIN_EMAIL
 const adminPassword=process.env.E2E_LEGACY_ADMIN_PASSWORD
 test.beforeEach(()=>{
  if(!adminEmail||!adminPassword) throw new Error('Load synthetic admin credentials from the local fixture manifest.')
 })
-async function signIn(page:any,email:string,password:string,isAdmin=false){
+async function signIn(page:Page,email:string,password:string,isAdmin=false){
  await page.goto('/login'); await page.locator('#email').fill(email); await page.locator('#password').fill(password)
  await page.getByRole('button',{name:'Sign in',exact:true}).click()
  await expect(page).toHaveURL(isAdmin?/\/admin$/:/\/dashboard$/)

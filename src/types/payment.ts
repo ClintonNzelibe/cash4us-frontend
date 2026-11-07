@@ -16,6 +16,7 @@ export interface PaymentSubmitRequest {
 }
 
 export interface Payment {
+  instruction_state?: 'OPEN' | 'CLOSED' | 'EXPIRED_REVIEW_REQUIRED' | 'UNVERIFIED_REVIEW_REQUIRED' | 'DISABLED_REVIEW_REQUIRED'
   id: string
   package?: string
   tenure?: string
@@ -30,7 +31,9 @@ export interface Payment {
   received_amount?: string | null
   token_contract?: string
   confirmations?: number | null
-  blockchain_tx_hash?: string
+  blockchain_tx_hash?: string | null
+  verified_at?: string | null
+  approved_by?: string | null
   verification_expires_at?: string | null
   verification_error?: string
   submitted_at?: string

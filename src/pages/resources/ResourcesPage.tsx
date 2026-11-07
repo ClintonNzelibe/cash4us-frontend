@@ -8,7 +8,7 @@ import {
   Video,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { getResources } from '../../services/resourceService'
 import type { Resource, ResourceType } from '../../types/resource'
 

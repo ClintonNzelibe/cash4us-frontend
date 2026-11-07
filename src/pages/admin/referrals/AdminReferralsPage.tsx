@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -5,7 +6,7 @@ import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 import Button from '../../../components/ui/Button'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import { getAdminReferrals } from '../../../services/adminReferralService'
 
@@ -45,7 +46,7 @@ export default function AdminReferralsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken) {
       setLoading(false)
       return
@@ -84,7 +85,7 @@ export default function AdminReferralsPage() {
     }, 300)
 
     return () => window.clearTimeout(timer)
-  }, [accessToken, filters])
+  }), [accessToken, filters])
 
   const paidReferrals = referrals.filter(
     (referral) => referral.status === 'PAID',

@@ -1,8 +1,9 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, RefreshCw } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { getAdminNotifications } from '../../../services/adminNotificationService'
 import type {
   AdminNotification,
@@ -49,9 +50,9 @@ export default function AdminNotificationsPage() {
     }
   }, [accessToken, filters])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     void loadNotifications()
-  }, [loadNotifications])
+  }), [loadNotifications])
 
   return (
     <div className="space-y-6">

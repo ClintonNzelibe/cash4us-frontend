@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ArrowDownLeft,
@@ -10,7 +11,7 @@ import {
   X,
 } from 'lucide-react'
 
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import { getTransactions } from '../../services/transactionService'
 import type {
   Transaction,
@@ -104,9 +105,9 @@ export default function TransactionsPage() {
     [accessToken],
   )
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     loadTransactions()
-  }, [loadTransactions])
+  }), [loadTransactions])
 
   const filteredTransactions = useMemo(() => {
     const query = search.trim().toLowerCase()

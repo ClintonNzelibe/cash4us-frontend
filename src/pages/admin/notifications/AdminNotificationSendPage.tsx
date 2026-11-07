@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import { sendAdminNotification } from '../../../services/adminNotificationService'
 import type { SendNotificationPayload } from '../../../types/admin/notifications'
 

@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import { scheduleEffect } from '../../utils/scheduleEffect'
 import {
   Award,
   Bell,
@@ -14,7 +16,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import {
   getNotifications,
   getUnreadNotificationCount,
@@ -307,7 +309,7 @@ export default function NotificationsPage() {
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null)
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!accessToken) return
 
     try {
@@ -331,11 +333,11 @@ export default function NotificationsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  useEffect(() => {
-    void loadData()
   }, [accessToken])
+
+  useEffect(() => scheduleEffect(() => {
+    void loadData()
+  }), [loadData])
 
   const filteredNotifications = useMemo(() => {
     if (filter === 'UNREAD') {

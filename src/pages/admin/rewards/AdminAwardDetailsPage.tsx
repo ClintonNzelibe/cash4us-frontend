@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
@@ -5,7 +6,7 @@ import Card from '../../../components/ui/Card'
 import PageLoader from '../../../components/ui/PageLoader'
 import Button from '../../../components/ui/Button'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 
 import {
   getAdminAward,
@@ -32,7 +33,7 @@ export default function AdminAwardDetailsPage() {
   const [grantOpen, setGrantOpen] = useState(false)
   const [processing, setProcessing] = useState(false)
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     if (!accessToken || !id) {
       setLoading(false)
       return
@@ -62,7 +63,7 @@ export default function AdminAwardDetailsPage() {
     }
 
     load()
-  }, [accessToken, id])
+  }), [accessToken, id])
 
   async function grant(
     userId: string,

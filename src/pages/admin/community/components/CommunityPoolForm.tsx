@@ -1,3 +1,4 @@
+import { scheduleEffect } from '../../../../utils/scheduleEffect'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 
@@ -22,9 +23,9 @@ export default function CommunityPoolForm({
 
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     setName(initialData?.name || '')
-  }, [initialData])
+  }), [initialData])
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>,

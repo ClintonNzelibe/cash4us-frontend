@@ -1,8 +1,9 @@
+import { scheduleEffect } from '../../../utils/scheduleEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, RefreshCw } from 'lucide-react'
 
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/useAuth'
 import {
   getAdminPartners,
   updateAdminPartnerStatus,
@@ -51,9 +52,9 @@ export default function AdminPartnersPage() {
     }
   }, [accessToken, filters])
 
-  useEffect(() => {
+  useEffect(() => scheduleEffect(() => {
     void loadPartners()
-  }, [loadPartners])
+  }), [loadPartners])
 
   async function handleStatusChange() {
     if (!accessToken || !selectedPartner) {
