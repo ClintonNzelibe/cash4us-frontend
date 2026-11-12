@@ -98,8 +98,8 @@ export default function PackagesPage() {
           </h1>
 
           <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300 sm:text-base">
-            Select a membership package and explore its
-            available tenure options.
+            Compare the payment amounts and referral requirements below.
+            Open a package to choose your membership duration.
           </p>
         </div>
 
@@ -187,6 +187,9 @@ function PackageCard({
           <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
             {formatCurrency(amount)}
           </p>
+          <p className="mt-2 text-sm text-slate-500">
+            Package value: {formatCurrency(packageData.price)}
+          </p>
         </div>
 
         <div className="mt-6 space-y-3 border-t border-slate-100 pt-5">
@@ -202,8 +205,13 @@ function PackageCard({
 
           <Feature
             icon={<CheckCircle2 size={16} />}
-            label="Multiple tenure options"
+            label={packageData.tenures?.length ? 'Tenure requirements' : 'Tenure options unavailable'}
           />
+          {packageData.tenures?.map((tenure) => (
+            <p key={tenure.id} className="text-sm text-slate-600">
+              {tenure.duration_days} days: {tenure.required_referrals} required referral{tenure.required_referrals === 1 ? '' : 's'}
+            </p>
+          ))}
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import { getAdminPackages } from '../../../services/adminPackageService'
 import { createPackageGrant, getMemberGrants, retireTestGrant } from '../../../services/adminGrantService'
 import type { GrantRequest, PackageGrant } from '../../../services/adminGrantService'
 import type { AdminPackage } from '../../../types/admin/packages'
+import { formatCurrency } from '../../../utils/formatCurrency'
 
 export default function PackageGrantPanel({ memberId, memberEmail, token, onGranted }: {
   memberId: string; memberEmail: string; token: string; onGranted: () => void
@@ -26,6 +27,9 @@ export default function PackageGrantPanel({ memberId, memberEmail, token, onGran
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const key = useRef(crypto.randomUUID())
   const submitting = useRef(false)
   useEffect(() => {
@@ -35,9 +39,10 @@ export default function PackageGrantPanel({ memberId, memberEmail, token, onGran
         if (!current) return
         setHistory(grants.results); setCanGrant(grants.can_grant); setCanRetire(grants.can_retire)
         setPackages((Array.isArray(items) ? items : items.results ?? []).filter(item => item.is_active))
-      }).catch(err => { if (current) setError(err instanceof Error ? err.message : 'Unable to load grant history.') })
+      }).catch(err => { if (current) { setCanGrant(false); setCanRetire(false); setLoadFailed(true); setError(err instanceof Error ? err.message : 'Unable to load grant history.') } })
+      .finally(() => { if (current) setLoading(false) })
     return () => { current = false }
-  }, [memberId, token])
+  }, [memberId, token, loadAttempt])
   const selected = packages.find(item => item.id === packageId)
   const tenure = selected?.tenures.find(item => item.id === tenureId && item.is_active)
 
@@ -47,7 +52,7 @@ export default function PackageGrantPanel({ memberId, memberEmail, token, onGran
     try {
       const result = await createPackageGrant(review, token)
       setHistory(current => [result.grant, ...current.filter(item => item.id !== result.grant.id)])
-      setNotice(result.replayed ? 'Existing administrative grant confirmed. No duplicate activation.' : 'Package granted successfully. Source: ADMIN_GRANT.')
+      setNotice(result.replayed ? 'This package grant was already completed. No duplicate activation.' : 'Package granted successfully. The member can now view it in My Packages.')
       setOpen(false); setReview(null); setReason(''); setReference(''); setTestRun('')
       key.current = crypto.randomUUID()
       onGranted()
@@ -72,30 +77,37 @@ export default function PackageGrantPanel({ memberId, memberEmail, token, onGran
   }
 
   return <Card className="overflow-hidden">
-    <section aria-label="Administrative package grants" className="space-y-5 p-5 sm:p-7">
+    <section aria-label="Administrative package grants" aria-busy={loading || busy} className="space-y-5 p-5 sm:p-7 [&_dd]:break-words">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex gap-3"><span className="shrink-0 self-start rounded-xl bg-emerald-50 p-3 text-teal-700"><Gift size={22} /></span>
           <div><h2 className="text-lg font-bold text-slate-900">Administrative package grants</h2>
-            <p className="mt-1 text-sm text-slate-500">Activate a membership with an auditable administrative authorization.</p></div></div>
-        <Button disabled={!canGrant || busy} onClick={() => { setOpen(!open); setError(''); setNotice('') }}>Grant package</Button>
+            <p className="mt-1 text-sm text-slate-500">Activate a member’s package using an approved admin grant. Every grant is saved in the history below.</p></div></div>
+        <Button aria-expanded={open} disabled={loading || !canGrant || busy} onClick={() => { setOpen(!open); setError(''); setNotice('') }}>{open ? 'Close grant form' : 'Grant package'}</Button>
       </div>
-      {!canGrant && <p className="text-sm text-slate-500">Explicit package grant permission is required to create a grant.</p>}
+      {loading && <p role="status" className="text-sm text-slate-500">Loading packages and checking your access…</p>}
+      {!loading && !loadFailed && !canGrant && <p className="text-sm text-slate-500">You can view this history. Ask your administrator for package grant permission to activate a package.</p>}
       {error && <p role="alert" className="rounded-xl bg-rose-50 p-4 text-sm text-rose-800">{error}</p>}
+      {loadFailed && <Button variant="outline" onClick={() => { setLoading(true); setLoadFailed(false); setError(''); setLoadAttempt(value => value + 1) }}>Try loading again</Button>}
       {notice && <p role="status" className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">{notice}</p>}
       {open && !review && <form className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:grid-cols-2" onSubmit={event => {
         event.preventDefault(); setError('')
         if (!tenure || !reason.trim() || !reference.trim()) { setError('Select a package and tenure and provide a reason and purchase reference.'); return }
         setReview({ member: memberId, package: packageId, tenure: tenureId, reason: reason.trim(), purchase_reference: reference.trim(), idempotency_key: key.current, ...(testRun.trim() ? { test_run: testRun.trim() } : {}) })
       }}>
+        <p className="text-sm text-slate-600 sm:col-span-2">Step 1 of 2: Choose the package and duration, then explain why this grant is approved. You will review everything before activation.</p>
+        {!packages.length && <p className="text-sm text-amber-800 sm:col-span-2">No active packages are available. Check package settings before creating a grant.</p>}
         <label className="text-sm font-medium text-slate-700">Package<select aria-label="Package" required value={packageId} onChange={event => { setPackageId(event.target.value); setTenureId('') }} className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3"><option value="">Select package</option>{packages.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-        <label className="text-sm font-medium text-slate-700">Tenure<select aria-label="Tenure" required disabled={!selected} value={tenureId} onChange={event => setTenureId(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3"><option value="">Select tenure</option>{selected?.tenures.filter(item => item.is_active).map(item => <option key={item.id} value={item.id}>{item.duration_days} days</option>)}</select></label>
+        <label className="text-sm font-medium text-slate-700">Membership duration<select aria-label="Tenure" required disabled={!selected} value={tenureId} onChange={event => setTenureId(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3"><option value="">Select duration</option>{selected?.tenures.filter(item => item.is_active).map(item => <option key={item.id} value={item.id}>{item.duration_days} days · {item.required_referrals} required referrals</option>)}</select></label>
+        {selected && !selected.tenures.some(item => item.is_active) && <p className="text-sm text-amber-800 sm:col-span-2">This package has no active membership durations. Configure a duration in package settings or choose another package.</p>}
         <label className="text-sm font-medium text-slate-700 sm:col-span-2">Purchase / case reference<input aria-label="Purchase / case reference" required maxLength={100} pattern="[A-Za-z0-9][A-Za-z0-9_.:/-]*" value={reference} onChange={event => setReference(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 p-3" placeholder="Unique approved purchase or case reference" /></label>
         <label className="text-sm font-medium text-slate-700 sm:col-span-2">Reason<textarea aria-label="Reason" required maxLength={2000} rows={3} value={reason} onChange={event => setReason(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 p-3" placeholder="Why is this administrative activation authorized?" /></label>
-        <label className="text-sm font-medium text-slate-700 sm:col-span-2">Test run (optional)<input aria-label="Test run" maxLength={80} pattern="[A-Za-z0-9][A-Za-z0-9_.-]*" value={testRun} onChange={event => setTestRun(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 p-3" /><span className="mt-1 block text-xs text-slate-500">Explicitly marks this new grant as a test that an authorized administrator can retire. Leave empty for a normal grant.</span></label>
+        <label className="text-sm font-medium text-slate-700 sm:col-span-2">Test run (optional)<input aria-label="Test run" placeholder="Example: client-20261112" maxLength={80} pattern="[A-Za-z0-9][A-Za-z0-9_.-]*" value={testRun} onChange={event => setTestRun(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-300 p-3" /><span className="mt-1 block text-xs text-slate-500">For client testing, enter a test name so an authorized admin can end the test later. Leave empty for a normal grant. Use letters, numbers, dots, hyphens or underscores.</span></label>
         <div className="sm:col-span-2"><Button type="submit">Review grant</Button></div>
       </form>}
       {open && review && <div className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
         <h3 className="flex items-center gap-2 font-bold text-teal-900"><ShieldCheck size={20} />Review administrative grant</h3>
+        <p className="text-sm text-teal-900">Step 2 of 2: Check these details. Confirming activates the package immediately.</p>
+        <dl className="grid gap-3 text-sm sm:grid-cols-2"><div><dt className="text-slate-500">Package value</dt><dd>{selected && formatCurrency(selected.price)}</dd></div><div><dt className="text-slate-500">Required referrals</dt><dd>{tenure?.required_referrals}</dd></div><div className="sm:col-span-2"><dt className="text-slate-500">Activation method</dt><dd>Admin grant — no payment collected</dd></div></dl>
         <dl className="grid gap-3 text-sm sm:grid-cols-2"><div><dt className="text-slate-500">Member</dt><dd>{memberEmail}</dd></div><div><dt className="text-slate-500">Package / tenure</dt><dd>{selected?.name} · {tenure?.duration_days} days</dd></div><div><dt className="text-slate-500">Reference</dt><dd>{review.purchase_reference}</dd></div><div><dt className="text-slate-500">Source</dt><dd className="font-bold">ADMIN_GRANT</dd></div><div className="sm:col-span-2"><dt className="text-slate-500">Reason</dt><dd className="whitespace-pre-wrap break-words">{review.reason}</dd></div></dl>
         <p className="text-sm text-teal-900">No blockchain payment is recorded. No referral commissions or referral points are issued. Existing package earnings rules apply.</p>
         <div className="flex flex-wrap gap-3"><Button disabled={busy} onClick={() => void confirm()}>{busy ? 'Granting…' : 'Confirm package grant'}</Button><Button variant="outline" disabled={busy} onClick={() => setReview(null)}>Edit details</Button></div>

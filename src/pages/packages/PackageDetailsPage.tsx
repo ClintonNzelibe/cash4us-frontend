@@ -48,9 +48,7 @@ export default function PackageDetailsPage() {
         const data = await getPackage(packageSlug)
         setPackageData(data)
 
-        if (data.tenures?.length) {
-            setSelectedTenure(data.tenures[0])
-        }
+        setSelectedTenure(data.tenures?.[0] ?? null)
         } catch (err) {
         setError(
             err instanceof Error
@@ -143,6 +141,9 @@ export default function PackageDetailsPage() {
             <p className="mt-2 text-3xl font-bold">
               {formatCurrency(paymentAmount)}
             </p>
+            <p className="mt-2 text-sm text-slate-300">
+              Package value: {formatCurrency(packageData.price)}
+            </p>
           </div>
         </div>
       </section>
@@ -169,8 +170,8 @@ export default function PackageDetailsPage() {
 
             <Benefit
               icon={<ShieldCheck size={18} />}
-              title="Membership"
-              value="Active cycle"
+              title="Membership status"
+              value="Starts after activation"
             />
           </div>
         </div>
@@ -179,11 +180,12 @@ export default function PackageDetailsPage() {
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div>
             <h2 className="text-lg font-bold text-slate-900">
-              Choose your tenure
+              Choose your membership duration
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Select the membership duration that suits you.
+              Each duration has its own referral requirement. Select an option
+              to review it before continuing to payment.
             </p>
           </div>
 
@@ -196,6 +198,7 @@ export default function PackageDetailsPage() {
                 return (
                   <button
                     key={tenure.id}
+                    aria-pressed={selected}
                     onClick={() =>
                       setSelectedTenure(tenure)
                     }
@@ -245,8 +248,8 @@ export default function PackageDetailsPage() {
           ) : (
             <div className="mt-6 rounded-2xl bg-slate-50 p-5">
               <p className="text-sm text-slate-500">
-                Tenure options are not currently available
-                for this package.
+                This package has no available membership durations yet.
+                Choose another package or contact support for help.
               </p>
             </div>
           )}

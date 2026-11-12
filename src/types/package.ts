@@ -11,6 +11,7 @@ export interface Package {
   display_order: number
   created_at: string
   updated_at: string
+  tenures?: Tenure[]
 }
 
 export interface Tenure {

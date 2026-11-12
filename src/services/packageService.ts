@@ -1,4 +1,4 @@
-import { apiClient } from '../api/client'
+import { API_BASE_URL, apiClient } from '../api/client'
 import type {
   MemberCycle,
   Package,
@@ -13,13 +13,24 @@ interface PaginatedResponse<T> {
 }
 
 export async function getPackages(): Promise<Package[]> {
-  const response = await apiClient<
-    Package[] | PaginatedResponse<Package>
-  >('/packages/')
-
-  return Array.isArray(response)
-    ? response
-    : response.results
+  const packages: Package[] = []
+  let endpoint: string | null = '/packages/'
+  const visited = new Set<string>()
+  while (endpoint) {
+    if (visited.has(endpoint)) throw new Error('Package pagination repeated a page.')
+    visited.add(endpoint)
+    const response: Package[] | PaginatedResponse<Package> = await apiClient(endpoint)
+    if (Array.isArray(response)) return [...packages, ...response]
+    packages.push(...response.results)
+    if (!response.next) break
+    const base = new URL(API_BASE_URL)
+    const next: URL = new URL(response.next, `${API_BASE_URL}${endpoint}`)
+    if (next.origin !== base.origin || next.pathname !== `${base.pathname}/packages/`) {
+      throw new Error('Invalid package pagination URL.')
+    }
+    endpoint = `/packages/${next.search}`
+  }
+  return packages
 }
 
 export async function getPackage(
