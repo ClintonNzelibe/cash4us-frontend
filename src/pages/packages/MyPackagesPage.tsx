@@ -270,7 +270,9 @@ export default function MyPackagesPage() {
         </div>
       )}
 
-      {cycles.filter(cycle => cycle.status === 'RETIRED').map(cycle => <p key={cycle.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">RETIRED · Test grant: {cycle.package_name || 'Administrative package'}. Future earnings stopped; history retained.</p>)}
+      {cycles.filter(cycle => cycle.status === 'RETIRED')
+        .sort((left, right) => Number(left.package_price ?? Infinity) - Number(right.package_price ?? Infinity))
+        .map(cycle => <p key={cycle.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">RETIRED · Test grant: {cycle.package_name || 'Administrative package'}. Future earnings stopped; history retained.</p>)}
       <RecommitmentReadiness accessToken={accessToken} />
     </div>
   )
@@ -401,7 +403,9 @@ function RecommitmentReadiness({ accessToken }: { accessToken: string | null }) 
                 className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
               >
                 <option value="">Choose an eligible package option</option>
-                {options.map((option) => (
+                {[...options]
+                  .sort((left, right) => Number(left.package_price) - Number(right.package_price))
+                  .map((option) => (
                   <option
                     key={`${option.package_id}:${option.tenure_id}`}
                     value={`${option.package_id}:${option.tenure_id}`}

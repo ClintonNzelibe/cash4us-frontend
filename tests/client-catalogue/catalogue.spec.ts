@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const packages = [25, 50, 250, 500, 1000, 2000].map(price => ({
+const packages = [25, 50, 250, 500, 1000, 2000, 100].map(price => ({
   id: `package-${price}`, name: `Cash4Us $${price}`, slug: `cash4us-${price}`,
   price: String(price), payment_amount: String(price === 50 ? 51 : price + 1),
   referral_bonus_percentage: '10', referral_points: 10, description: '',
@@ -23,8 +23,11 @@ for (const width of [320, 768, 1440]) {
           id: 'synthetic-member', email: 'catalogue@example.test', username: 'catalogue',
           first_name: 'Catalogue', last_name: 'Test', is_admin: false, referral_code: 'TEST',
         } })
+        if (url.pathname.endsWith('/packages/') && width === 1440) {
+          return route.fulfill({ json: packages })
+        }
         if (url.pathname.endsWith('/packages/')) return route.fulfill({ json: {
-          count: 6, next: url.search ? null : `${url.origin}${url.pathname}?page=2`,
+          count: packages.length, next: url.search ? null : `${url.origin}${url.pathname}?page=2`,
           previous: null, results: url.search ? packages.slice(2) : packages.slice(0, 2),
         } })
         const detail = packages.find(pkg => url.pathname.endsWith(`/packages/${pkg.slug}/`))
@@ -34,7 +37,9 @@ for (const width of [320, 768, 1440]) {
       return ['127.0.0.1', 'localhost'].includes(url.hostname) ? route.continue() : route.abort()
     })
     await page.goto('/packages')
-    await expect(page.locator('article')).toHaveCount(6)
+    await expect(page.locator('article').getByRole('heading')).toHaveText(
+      [25, 50, 100, 250, 500, 1000, 2000].map(price => `Cash4Us $${price}`),
+    )
     for (const pkg of packages) {
       const card = page.locator('article').filter({ has: page.getByRole('heading', { name: pkg.name, exact: true }) })
       await expect(card).toContainText('30 days: 4 required referrals')

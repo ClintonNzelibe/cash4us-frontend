@@ -20,7 +20,10 @@ export async function getPackages(): Promise<Package[]> {
     if (visited.has(endpoint)) throw new Error('Package pagination repeated a page.')
     visited.add(endpoint)
     const response: Package[] | PaginatedResponse<Package> = await apiClient(endpoint)
-    if (Array.isArray(response)) return [...packages, ...response]
+    if (Array.isArray(response)) {
+      packages.push(...response)
+      break
+    }
     packages.push(...response.results)
     if (!response.next) break
     const base = new URL(API_BASE_URL)
@@ -30,7 +33,7 @@ export async function getPackages(): Promise<Package[]> {
     }
     endpoint = `/packages/${next.search}`
   }
-  return packages
+  return packages.sort((left, right) => Number(left.price) - Number(right.price))
 }
 
 export async function getPackage(
