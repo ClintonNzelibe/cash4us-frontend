@@ -1,5 +1,7 @@
 import {
+  useCallback,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -17,6 +19,8 @@ import {
   setTokens,
 } from '../utils/authStorage'
 
+import { ApiError } from '../api/client'
+import { scheduleEffect } from '../utils/scheduleEffect'
 import { AuthContext } from './authContextState'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -25,42 +29,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getAccessToken(),
   )
   const [isLoading, setIsLoading] = useState(true)
+  const [restoreFailed, setRestoreFailed] = useState(false)
+  const authAttempt = useRef(0)
 
-  useEffect(() => {
-    async function restoreSession() {
-      const token = getAccessToken()
+  const restoreSession = useCallback(async () => {
+    const attempt = ++authAttempt.current
+    const token = getAccessToken()
+    if (!token) {
+      setIsLoading(false)
+      return
+    }
 
-      if (!token) {
-        setIsLoading(false)
-        return
-      }
-
-      try {
-        const currentUser = await getCurrentUser(token)
-        setUser(currentUser)
-        setAccessToken(getAccessToken())
-      } catch {
+    setRestoreFailed(false)
+    setIsLoading(true)
+    try {
+      const currentUser = await getCurrentUser(token)
+      if (attempt !== authAttempt.current) return
+      setUser(currentUser)
+      setAccessToken(getAccessToken())
+    } catch (error) {
+      if (attempt !== authAttempt.current) return
+      if (error instanceof ApiError && error.status === 401) {
         clearTokens()
         setAccessToken(null)
         setUser(null)
-      } finally {
-        setIsLoading(false)
+      } else {
+        setRestoreFailed(true)
       }
+    } finally {
+      if (attempt === authAttempt.current) setIsLoading(false)
     }
-
-    restoreSession()
   }, [])
 
+  useEffect(() => scheduleEffect(() => {
+    void restoreSession()
+  }), [restoreSession])
+
   async function login(credentials: LoginRequest): Promise<User> {
-    const response = await loginRequest(credentials)
-
-    setTokens(response.access, response.refresh)
-    setAccessToken(response.access)
-
-    const currentUser = await getCurrentUser(response.access)
-    setUser(currentUser)
-
-    return currentUser
+    const attempt = ++authAttempt.current
+    try {
+      const response = await loginRequest(credentials)
+      if (attempt !== authAttempt.current) throw new Error('Sign-in was cancelled.')
+      setTokens(response.access, response.refresh)
+      const currentUser = await getCurrentUser(response.access)
+      if (attempt !== authAttempt.current) throw new Error('Sign-in was cancelled.')
+      setAccessToken(getAccessToken())
+      setUser(currentUser)
+      return currentUser
+    } catch (error) {
+      if (attempt === authAttempt.current) {
+        clearTokens()
+        setAccessToken(null)
+        setUser(null)
+      }
+      throw error
+    } finally {
+      if (attempt === authAttempt.current) setIsLoading(false)
+    }
   }
 
   async function refreshUser(): Promise<void> {
@@ -72,9 +97,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logout() {
+    authAttempt.current++
+    setRestoreFailed(false)
+    setIsLoading(false)
     clearTokens()
     setAccessToken(null)
     setUser(null)
+  }
+
+  if (restoreFailed) {
+    return (
+      <main className="mx-auto max-w-md space-y-4 px-5 py-16">
+        <h1 className="text-xl font-semibold">Unable to reconnect to Cash4Us</h1>
+        <p role="alert">Your session is saved. Try again when the connection is available.</p>
+        <button className="mr-4 font-semibold text-teal-700 underline" onClick={() => void restoreSession()}>Try again</button>
+        <button className="font-semibold text-teal-700 underline" onClick={logout}>Sign out</button>
+      </main>
+    )
   }
 
   return (

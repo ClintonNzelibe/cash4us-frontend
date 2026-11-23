@@ -2,6 +2,7 @@ import {
   getAccessToken,
   getRefreshToken,
   setAccessToken,
+  setTokens,
 } from '../utils/authStorage'
 
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000/api'
@@ -19,18 +20,24 @@ type RequestOptions = RequestInit & {
 
 type RefreshResponse = {
   access: string
+  refresh?: string
 }
 
-let refreshPromise: Promise<string | null> | null = null
+export class ApiError extends Error {
+  readonly status: number
 
-async function refreshAccessToken(): Promise<string | null> {
-  if (refreshPromise) return refreshPromise
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
 
-  const refreshToken = getRefreshToken()
+let pendingRefresh: { token: string; promise: Promise<string | null> } | undefined
 
-  if (!refreshToken) return null
+function refreshAccessToken(refreshToken: string): Promise<string | null> {
+  if (pendingRefresh?.token === refreshToken) return pendingRefresh.promise
 
-  refreshPromise = fetch(`${API_BASE_URL}/users/refresh/`, {
+  const promise = fetch(`${API_BASE_URL}/users/refresh/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -38,27 +45,29 @@ async function refreshAccessToken(): Promise<string | null> {
     body: JSON.stringify({ refresh: refreshToken }),
   })
     .then(async (response) => {
-      if (!response.ok) return null
-
+      if (response.status === 401 || response.status === 403) return null
+      if (!response.ok) throw new ApiError('The session service is temporarily unavailable.', response.status)
       const data = await response.json() as RefreshResponse
-
-      if (!data.access) return null
-
-      setAccessToken(data.access)
+      if (getRefreshToken() !== refreshToken) return null
+      if (typeof data.access !== 'string' || !data.access) {
+        throw new Error('The session service returned an invalid response.')
+      }
+      if (data.refresh) setTokens(data.access, data.refresh)
+      else setAccessToken(data.access)
       return data.access
     })
-    .catch(() => null)
     .finally(() => {
-      refreshPromise = null
+      if (pendingRefresh?.promise === promise) pendingRefresh = undefined
     })
 
-  return refreshPromise
+  pendingRefresh = { token: refreshToken, promise }
+  return promise
 }
 
 function buildHeaders(fetchOptions: RequestInit, token?: string) {
   const headers = new Headers(fetchOptions.headers)
 
-  if (!(fetchOptions.body instanceof FormData)) {
+  if (typeof fetchOptions.body === 'string' && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
 
@@ -124,12 +133,15 @@ export async function apiClient<T>(
   // Components may hold an expired token in state after a refresh. Prefer
   // the latest token persisted by the shared refresh flow.
   const accessToken = token ? (getAccessToken() || token) : undefined
+  const sessionToken = token ? getRefreshToken() : null
   let response = await request(endpoint, fetchOptions, accessToken)
 
-  if (response.status === 401 && token) {
-    const refreshedAccessToken = await refreshAccessToken()
-
-    if (refreshedAccessToken) {
+  if (response.status === 401 && sessionToken && sessionToken === getRefreshToken()) {
+    const currentAccess = getAccessToken()
+    const refreshedAccessToken = currentAccess && currentAccess !== accessToken
+      ? currentAccess
+      : await refreshAccessToken(sessionToken)
+    if (refreshedAccessToken && getAccessToken() === refreshedAccessToken) {
       response = await request(
         endpoint,
         fetchOptions,
@@ -144,7 +156,7 @@ export async function apiClient<T>(
     : null
 
   if (!response.ok) {
-    throw new Error(getApiErrorMessage(data, response.status))
+    throw new ApiError(getApiErrorMessage(data, response.status), response.status)
   }
 
   return data as T
