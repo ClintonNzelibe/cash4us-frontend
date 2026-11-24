@@ -369,7 +369,7 @@ export default function TaskForm({
 
           <input
             type="file"
-            accept="image/*"
+            accept=".jpg,.jpeg,.png,.gif,.webp"
             onChange={(event) =>
               setFlyer(
                 event.target.files?.[0] ?? null,
@@ -386,7 +386,7 @@ export default function TaskForm({
 
           <input
             type="file"
-            accept="video/*"
+            accept=".mp4,.webm,.mov"
             onChange={(event) =>
               setVideo(
                 event.target.files?.[0] ?? null,

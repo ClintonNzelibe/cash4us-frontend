@@ -25,6 +25,9 @@ export interface DailyTask {
   end_date: string
   deadline: string | null
   assigned_at: string
+  assignment_date?: string
+  assignment_deadline?: string
+  assignment_assigned_at?: string
   is_active: boolean
   created_at: string
 }
@@ -32,6 +35,7 @@ export interface DailyTask {
 export interface TaskSubmission {
   id: string
   task: DailyTask
+  assignment_date?: string
   credited_amount: string | number | null
   proof_type: TaskProofType
   proof_image: string | null

@@ -9,6 +9,7 @@ export interface AdminReferralUser {
 
 export interface AdminReferralPayment {
   id: string
+  package_name?: string
   amount: string | number
   status: string
   transaction_reference: string

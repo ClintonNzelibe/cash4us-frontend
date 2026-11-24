@@ -15,11 +15,12 @@ import {
 import { useAuth } from '../../context/useAuth'
 import {
   getPayment,
+  getPaymentNetworks,
   getPayments,
   cancelPayment,
   submitPayment,
 } from '../../services/paymentService'
-import type { Payment } from '../../types/payment'
+import type { Payment, PaymentNetwork } from '../../types/payment'
 
 interface PaymentState {
   packageId: string
@@ -97,6 +98,8 @@ export default function PaymentPage() {
   const navigate = useNavigate()
   const state = location.state as PaymentState | null
   const { accessToken, isLoading: isAuthLoading } = useAuth()
+  const [networks, setNetworks] = useState<PaymentNetwork[]>([])
+  const [network, setNetwork] = useState<PaymentNetwork | ''>('')
   const [payment, setPayment] = useState<Payment | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -131,6 +134,13 @@ export default function PaymentPage() {
 
       if (!pendingPayment) {
         setPayment(null)
+        if (state && pendingPayments.length === 0) {
+          const availableNetworks = await getPaymentNetworks(accessToken)
+          setNetworks(availableNetworks)
+          setNetwork((previous) => previous && availableNetworks.includes(previous)
+            ? previous
+            : availableNetworks[0] ?? '')
+        }
 
         if (state && pendingPayments.length > 0) {
           setError(
@@ -215,7 +225,7 @@ export default function PaymentPage() {
   const status = payment && statusPresentation(payment, isExpired)
 
   const createPayment = async () => {
-    if (!accessToken || !state || isSubmitting) return
+    if (!accessToken || !state || !network || isSubmitting) return
 
     setIsSubmitting(true)
     setError(null)
@@ -226,7 +236,7 @@ export default function PaymentPage() {
           package: state.packageId,
           tenure: state.tenureId,
           installment_number: state.installmentNumber ?? 1,
-          payment_network: 'BEP20',
+          payment_network: network,
         },
         accessToken,
       )
@@ -310,7 +320,7 @@ export default function PaymentPage() {
             USDT payment
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#0F172A] sm:text-3xl">
-            Complete your BEP20 payment
+            Complete your payment
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
             {payment && payment.status !== 'PENDING'
@@ -346,16 +356,28 @@ export default function PaymentPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
             <WalletCards className="mx-auto h-10 w-10 text-[#0F766E]" />
             <h2 className="mt-4 text-xl font-bold text-[#0F172A]">
-              Create your secure BEP20 payment
+              Request USDT payment instructions
             </h2>
             <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
               Cash4Us will calculate the amount and assign a unique deposit address.
               Do not send USDT until those instructions are displayed.
             </p>
-            {state ? (
+            {state && networks.length > 0 ? (
+              <div>
+                <label className="mt-4 block text-sm font-medium">
+                  Payment network
+                  <select
+                    value={network}
+                    onChange={(event) => setNetwork(event.target.value as PaymentNetwork)}
+                    disabled={isSubmitting}
+                    className="ml-2 rounded-lg border border-slate-300 px-3 py-2"
+                  >
+                    {networks.map((option) => <option key={option}>{option}</option>)}
+                  </select>
+                </label>
               <button
                 type="button"
-                disabled={isSubmitting || !accessToken}
+                disabled={isSubmitting || !accessToken || !network}
                 onClick={() => void createPayment()}
                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115E59] disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -366,6 +388,9 @@ export default function PaymentPage() {
                 )}
                 {isSubmitting ? 'Creating payment…' : 'Get payment instructions'}
               </button>
+              </div>
+            ) : state ? (
+              <p role="status" className="mt-4 text-sm text-slate-700">Payment requests are currently unavailable.</p>
             ) : (
               <button
                 onClick={() => navigate('/packages')}
@@ -400,7 +425,7 @@ export default function PaymentPage() {
                     <WalletCards className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="font-bold text-[#0F172A]">Send USDT on BEP20</h2>
+                    <h2 className="font-bold text-[#0F172A]">Send USDT on {payment.payment_network}</h2>
                     <p className="text-sm text-slate-500">Use BNB Smart Chain only.</p>
                   </div>
                 </div>
@@ -414,7 +439,7 @@ export default function PaymentPage() {
                   </div>
                   <div className="rounded-xl bg-slate-50 p-4">
                     <p className="text-xs font-medium text-slate-500">Network</p>
-                    <p className="mt-1 text-lg font-bold text-[#0F172A]">BEP20</p>
+                    <p className="mt-1 text-lg font-bold text-[#0F172A]">{payment.payment_network}</p>
                   </div>
                 </div>
 
@@ -448,7 +473,7 @@ export default function PaymentPage() {
                     <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
                     <p>
                       Send the <strong>exact amount</strong> to this address using
-                      <strong> BEP20</strong>. A different token, network, or amount
+                      <strong> {payment.payment_network}</strong>. A different token, network, or amount
                       may prevent verification.
                     </p>
                   </div>

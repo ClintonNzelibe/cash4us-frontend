@@ -316,6 +316,12 @@ export default function AdminReferralDetailsPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {referral.payment.package_name && (
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Package</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{referral.payment.package_name}</p>
+              </div>
+            )}
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Payment Amount

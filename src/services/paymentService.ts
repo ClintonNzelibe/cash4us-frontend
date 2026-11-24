@@ -2,8 +2,14 @@ import { apiClient } from '../api/client'
 import type {
   Payment,
   PaymentCreated,
+  PaymentNetwork,
   PaymentSubmitRequest,
 } from '../types/payment'
+
+export async function getPaymentNetworks(token: string): Promise<PaymentNetwork[]> {
+  const response = await apiClient<{ networks: PaymentNetwork[] }>('/payments/networks/', { token })
+  return response.networks
+}
 
 export async function submitPayment(
   data: PaymentSubmitRequest,

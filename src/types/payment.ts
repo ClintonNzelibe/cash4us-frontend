@@ -11,7 +11,7 @@ export type PaymentStatus =
 export interface PaymentSubmitRequest {
   package: string
   tenure: string
-  payment_network: 'BEP20'
+  payment_network: PaymentNetwork
   installment_number: number
 }
 
@@ -49,7 +49,7 @@ export interface PaymentCreated extends Payment {
   tenure: string
   package_name: string
   tenure_days: number
-  payment_network: 'BEP20'
+  payment_network: PaymentNetwork
   transaction_reference: string
   installment_number: number
   expected_amount: string

@@ -8,6 +8,7 @@ import AppLayout from '../components/layout/AppLayout'
 import AdminLayout from '../admin/layouts/AdminLayout'
 
 // Auth
+import PasswordResetPage from '../pages/auth/PasswordResetPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 import LandingPage from '../pages/landing/LandingPage'
@@ -184,6 +185,8 @@ export default function AppRouter() {
       <Route path="/" element={<HomePage />} />
 
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<PasswordResetPage key="request" />} />
+      <Route path="/reset-password" element={<PasswordResetPage key="confirm" confirm />} />
 
       <Route path="/register" element={<RegisterPage />} />
 

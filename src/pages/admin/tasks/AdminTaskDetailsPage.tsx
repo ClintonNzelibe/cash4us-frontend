@@ -308,6 +308,13 @@ export default function AdminTaskDetailsPage() {
                   Video
                 </p>
 
+                <video
+                  controls
+                  preload="metadata"
+                  src={task.video}
+                  aria-label={`${task.title} video`}
+                  className="mb-2 w-full rounded-xl border border-slate-200"
+                />
                 <a
                   href={task.video}
                   target="_blank"

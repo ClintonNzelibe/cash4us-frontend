@@ -80,34 +80,44 @@ function getPlatformLabel(platform: string) {
 function CopyButton({
   value,
   label = 'Copy',
+  share = false,
 }: {
   value: string
   label?: string
+  share?: boolean
 }) {
-  const [copied, setCopied] = useState(false)
+  const [feedback, setFeedback] = useState('')
 
   const handleCopy = async () => {
+    setFeedback('')
+    if (share && navigator.share) {
+      try {
+        await navigator.share({ text: value })
+        return
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+      }
+    }
     try {
       await navigator.clipboard.writeText(value)
-      setCopied(true)
-
-      window.setTimeout(() => {
-        setCopied(false)
-      }, 1500)
+      setFeedback(share ? 'Copied. Paste this into your post.' : 'Copied.')
     } catch {
-      // Clipboard may not be available.
+      setFeedback('Select and copy the content manually.')
     }
   }
 
   return (
-    <button
+    <div>
+      <button
       type="button"
       onClick={handleCopy}
       className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
     >
       <Copy className="h-3.5 w-3.5" />
-      {copied ? 'Copied' : label}
-    </button>
+      {label}
+      </button>
+      <p role="status" className="text-xs text-slate-600">{feedback}</p>
+    </div>
   )
 }
 
@@ -293,7 +303,7 @@ function TaskCard({
             <div className="flex items-center gap-1.5">
               <Clock3 className="h-3.5 w-3.5 text-[#0F766E]" />
               <span>
-                Due {formatDeadline(task.deadline)}
+                Due {formatDeadline(task.assignment_deadline ?? task.deadline)}
               </span>
             </div>
           )}
@@ -393,9 +403,16 @@ function TaskCard({
         {/* Bottom action */}
         <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-slate-400">
-            Assigned {formatDate(task.assigned_at)}
+            Assigned {formatDate(task.assignment_assigned_at ?? task.assigned_at)}
           </p>
 
+          {(task.advertisement_text || task.promotional_link) && (
+            <CopyButton
+              value={[task.advertisement_text, task.promotional_link].filter(Boolean).join('\n\n')}
+              label="Share task"
+              share
+            />
+          )}
           <button
             type="button"
             onClick={() => onSubmit(task)}
@@ -515,6 +532,7 @@ function SubmitProofModal({
     event: React.FormEvent,
   ) => {
     event.preventDefault()
+    if (isSubmitting) return
     setError('')
 
     if (proofType === 'SCREENSHOT' && !proofImage) {
@@ -548,9 +566,9 @@ function SubmitProofModal({
       await submitTaskProof(token, {
         task: task.id,
         proof_type: proofType,
-        proof_image: proofImage,
-        proof_url: proofUrl.trim(),
-        proof_details: proofDetails.trim(),
+        proof_image: proofType === 'SCREENSHOT' ? proofImage : undefined,
+        proof_url: proofType === 'POST_URL' ? proofUrl.trim() : '',
+        proof_details: proofType === 'OTHER' ? proofDetails.trim() : '',
       })
 
       onSuccess()
@@ -722,7 +740,7 @@ function SubmitProofModal({
                 </p>
 
                 <p className="mt-1 text-xs text-slate-500">
-                  {formatDeadline(task.deadline)}
+                  {formatDeadline(task.assignment_deadline ?? task.deadline)}
                 </p>
               </div>
             </div>
@@ -763,6 +781,7 @@ export default function TasksPage() {
   const [selectedTask, setSelectedTask] =
     useState<DailyTask | null>(null)
 
+  const [submissionMessage, setSubmissionMessage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -801,22 +820,12 @@ export default function TasksPage() {
     void loadData()
   }), [loadData])
 
-  const submittedTaskIds = useMemo(
-    () =>
-      new Set(
-        submissions.map(
-          (submission) => submission.task.id,
-        ),
-      ),
-    [submissions],
-  )
-
   const availableTasks = useMemo(
-    () =>
-      tasks.filter(
-        (task) => !submittedTaskIds.has(task.id),
-      ),
-    [tasks, submittedTaskIds],
+    () => tasks.filter((task) => !submissions.some((submission) =>
+      submission.task.id === task.id &&
+      (!task.assignment_date || submission.assignment_date === task.assignment_date),
+    )),
+    [tasks, submissions],
   )
 
   if (isLoading) {
@@ -876,6 +885,8 @@ export default function TasksPage() {
           {error}
         </div>
       )}
+
+      {submissionMessage && <p role="status" className="text-sm text-emerald-800">{submissionMessage}</p>}
 
       {/* Statistics */}
       {statistics && (
@@ -1059,6 +1070,7 @@ export default function TasksPage() {
           token={accessToken}
           onClose={() => setSelectedTask(null)}
           onSuccess={() => {
+            setSubmissionMessage('Proof submitted. Track its status under My Submissions.')
             void loadData()
           }}
         />

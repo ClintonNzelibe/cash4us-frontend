@@ -11,7 +11,7 @@ import {
   Wallet,
   X,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../../context/useAuth'
 import { getWallet } from '../../services/walletService'
 import {
@@ -368,6 +368,8 @@ function RequestWithdrawalModal({
   const [isSubmitting, setIsSubmitting] =
     useState(false)
 
+  const request = useRef<{ details: string; id: string } | null>(null)
+  const submitting = useRef(false)
   const numericAmount = Number(amount)
 
   const estimatedFee =
@@ -403,10 +405,17 @@ function RequestWithdrawalModal({
       return
     }
 
+    if (submitting.current) return
+    submitting.current = true
     try {
       setIsSubmitting(true)
 
+      const details = JSON.stringify([network, address.trim(), amount])
+      if (request.current?.details !== details) {
+        request.current = { details, id: crypto.randomUUID() }
+      }
       await createWithdrawal(token, {
+        request_id: request.current.id,
         destination_network: network,
         destination_address: address.trim(),
         amount: amount,
@@ -421,6 +430,7 @@ function RequestWithdrawalModal({
           : 'Unable to submit withdrawal request.',
       )
     } finally {
+      submitting.current = false
       setIsSubmitting(false)
     }
   }
@@ -846,6 +856,36 @@ export default function WithdrawalsPage() {
               </p>
             )}
           </div>
+        </section>
+      )}
+
+      {eligibility?.next_window_start && eligibility.next_window_end && (
+        <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
+          <h3 className="font-semibold text-slate-900">Early withdrawal</h3>
+          {eligibility.early_withdrawal ? (
+            <>
+              <p className="text-sm text-slate-700">
+                Day {eligibility.early_withdrawal.membership_day} of your membership · {eligibility.early_withdrawal.eligible ? 'Early withdrawal requirements met' : 'Early withdrawal requirements outstanding'}
+              </p>
+              <p className="text-sm text-slate-700">
+                Qualifying referrals {eligibility.early_withdrawal.completed_referrals} / {eligibility.early_withdrawal.required_referrals}
+              </p>
+              <p className="text-sm text-slate-700">
+                Tasks completed {eligibility.early_withdrawal.tasks_completed} / {eligibility.early_withdrawal.tasks_assigned} ({eligibility.early_withdrawal.completion_rate}%, minimum {eligibility.early_withdrawal.minimum_completion_threshold}%)
+              </p>
+              {eligibility.early_withdrawal.outstanding_requirements.length > 0 && (
+                <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+                  {eligibility.early_withdrawal.outstanding_requirements.map(requirement => <li key={requirement}>{requirement}</li>)}
+                </ul>
+              )}
+            </>
+          ) : <p className="text-sm text-slate-700">An active package is required for early withdrawal.</p>}
+          <p className="text-sm text-slate-700">
+            {eligibility.withdrawal_window_open ? 'The withdrawal window is open until ' : 'Next scheduled withdrawal window opens '}
+            {new Date(eligibility.withdrawal_window_open ? eligibility.next_window_end : eligibility.next_window_start)
+              .toLocaleString(undefined, { weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}
+            {'.'}
+          </p>
         </section>
       )}
 
