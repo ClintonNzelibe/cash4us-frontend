@@ -33,10 +33,20 @@ export function getCurrentUser(token: string): Promise<User> {
 export function updateProfile(
   data: Partial<Pick<User, 'first_name' | 'last_name' | 'username'>>,
   token: string,
+  image?: File,
 ): Promise<User> {
+  let body: BodyInit = JSON.stringify(data)
+  if (image) {
+    const form = new FormData()
+    for (const [field, value] of Object.entries(data)) {
+      form.append(field, value)
+    }
+    form.append('profile_image', image)
+    body = form
+  }
   return apiClient<User>('/users/profile/', {
     method: 'PATCH',
     token,
-    body: JSON.stringify(data),
+    body,
   })
 }

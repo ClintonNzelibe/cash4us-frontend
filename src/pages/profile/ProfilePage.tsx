@@ -18,6 +18,8 @@ export default function ProfilePage() {
   const { user, accessToken, refreshUser } = useAuth()
 
   const [isEditing, setIsEditing] = useState(false)
+  const [profileImage, setProfileImage] = useState<File>()
+  const [failedImage, setFailedImage] = useState<string>()
   const [isSaving, setIsSaving] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -90,9 +92,11 @@ export default function ProfilePage() {
           username: form.username.trim(),
         },
         accessToken,
+        profileImage,
       )
 
       await refreshUser()
+      setProfileImage(undefined)
       setSuccess('Profile updated successfully.')
       setIsEditing(false)
     } catch (err) {
@@ -117,6 +121,7 @@ export default function ProfilePage() {
 
     setError('')
     setSuccess('')
+    setProfileImage(undefined)
     setIsEditing(false)
   }
 
@@ -226,7 +231,14 @@ export default function ProfilePage() {
           <div className="flex items-center gap-4">
             {/* Avatar */}
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white text-xl font-bold text-[#0F766E] shadow-sm">
-              {initials || (
+              {user.profile_image && failedImage !== user.profile_image ? (
+                <img
+                  src={user.profile_image}
+                  alt="Profile"
+                  className="h-full w-full rounded-full object-cover"
+                  onError={() => setFailedImage(user.profile_image ?? undefined)}
+                />
+              ) : initials || (
                 <UserIcon className="h-7 w-7" />
               )}
             </div>
@@ -246,6 +258,18 @@ export default function ProfilePage() {
 
         {/* Personal Information */}
         <div className="p-5 sm:p-7">
+          {isEditing && (
+            <label className="mb-5 block text-sm font-medium text-slate-700">
+              Profile photo
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.gif"
+                className="mt-2 block max-w-full text-sm text-slate-600"
+                disabled={isSaving}
+                onChange={(event) => setProfileImage(event.target.files?.[0])}
+              />
+            </label>
+          )}
           <div className="mb-5">
             <h3 className="font-semibold text-[#0F172A]">
               Personal Information
